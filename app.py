@@ -332,7 +332,6 @@ def register():
             weight=form.weight.data,
             physical_activity_level=form.physical_activity_level.data,
         )
-        print("new_user is: ",new_user[0])
         db.session.add(new_user)
         db.session.commit()
 
