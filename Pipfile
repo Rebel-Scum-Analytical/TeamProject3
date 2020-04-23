@@ -17,6 +17,7 @@ passlib = "*"
 gunicorn = "*"
 simplejson = "*"
 plotly = "*"
+cryptography = "*"
 
 [requires]
 python_version = "3.7"

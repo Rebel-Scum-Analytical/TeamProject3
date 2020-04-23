@@ -82,29 +82,13 @@ db = SQLAlchemy(app)
 app.config["SQLALCHEMY_ECHO"] = True
 
 # Create classes for the database tables and map the column names to all the database tables
-
-# Meal_record table. This table is used to store data that user enters through URL to add meals
-class Meal_record(db.Model):
-    __tablename__ = "meal_record"
-
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    meal_item_code = db.Column(db.Integer)
-    username = db.Column(db.String(50))
-    type = db.Column(db.String(50))
-    meal_date = db.Column(db.Date)
-    meal_desc = db.Column(db.String(256))
-    amount = db.Column(db.Float)
-
-    def __repr__(self):
-        return "<Meal_record %r>" % (self.name)
-
-
 # User_account table. THis table contains user profile information
 class User_account(db.Model):
     __tablename__ = "user_account"
-
+    
+# Primary key is always unique by definition, don't have to explicitly define it as UNIQUE
     username = db.Column(db.String(50), primary_key=True)
-    password = db.Column(db.String(50))
+    password = db.Column(db.String(50), nullable=False)
     confirm_password = db.Column(db.String(50))
     first_name = db.Column(db.String(50))
     last_name = db.Column(db.String(50))
@@ -114,8 +98,32 @@ class User_account(db.Model):
     weight = db.Column(db.Float)
     physical_activity_level = db.Column(db.String(50))
 
+# "meals" is not going to be a column in the DB(or user_account table), it only runs as "background" referenced by the meal_record table
+# user-to-meal is one-to-many  
+    meals = db.relationship("Meal_record", backref="user", lazy=True)
+
     def __repr__(self):
         return "<User_account %r>" % (self.name)
+
+
+# Meal_record table. This table is used to store data that user enters through URL to add meals
+class Meal_record(db.Model):
+    __tablename__ = "meal_record"
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    meal_item_code = db.Column(db.Integer)
+    # username = db.Column(db.String(50))
+    type = db.Column(db.String(50))
+    meal_date = db.Column(db.Date)
+    meal_desc = db.Column(db.String(256))
+    amount = db.Column(db.Float)
+
+# "username" is going to be a column in the meal_record table and it's a foreignkey referencing the username of the user_account table
+    username = db.Column(db.String(50), db.ForeignKey("user_account.username"), nullable=False)
+
+    def __repr__(self):
+        return "<Meal_record %r>" % (self.name)
+
 
 
 # Nutrition table. This table contains all the nutrition information for the food items in usda database.
@@ -271,8 +279,9 @@ def loginsys(username, password):
 
 class RegistrationForm(FlaskForm):
     username = StringField(
-        "Username", validators=[InputRequired(), Length(min=4, max=20)]
+        "Username", validators=[InputRequired(), Length(min=4, max=20, message="Invalid Length")]
     )
+
     password = PasswordField("Password", validators=[InputRequired()])
     confirm_password = PasswordField(
         "Confirm Password", validators=[InputRequired(), EqualTo("password")]
@@ -317,26 +326,31 @@ def register():
         return redirect("/dashboard")
 
     form = RegistrationForm(request.form)
+
     if form.validate_on_submit():
-        flash(f"Account created for {form.username.data}!", "success")
+        new_username = db.session.query(User_account.username).filter(User_account.username == form.username.data).first()
+        if new_username is not None:
+            flash(f"{form.username.data} is taken, please choose another username")
+            return render_template("New_user.html", form=form)            
 
-        new_user = User_account(
-            username=form.username.data,
-            password=form.password.data,
-            confirm_password=form.confirm_password.data,
-            first_name=form.first_name.data,
-            last_name=form.last_name.data,
-            gender=form.gender.data,
-            date_of_birth=form.date_of_birth.data,
-            height=form.height.data,
-            weight=form.weight.data,
-            physical_activity_level=form.physical_activity_level.data,
-        )
-        print("new_user is: ",new_user[0])
-        db.session.add(new_user)
-        db.session.commit()
+        else:            
+            flash(f"Account created for {form.username.data}!", "success")
+            new_user = User_account(
+                username=form.username.data,
+                password=form.password.data,
+                confirm_password=form.confirm_password.data,
+                first_name=form.first_name.data,
+                last_name=form.last_name.data,
+                gender=form.gender.data,
+                date_of_birth=form.date_of_birth.data,
+                height=form.height.data,
+                weight=form.weight.data,
+                physical_activity_level=form.physical_activity_level.data,
+            )
 
-        return redirect("/dashboard")
+            db.session.add(new_user)
+            db.session.commit()
+            return redirect("/dashboard")
     return render_template("New_user.html", form=form)
 
 
