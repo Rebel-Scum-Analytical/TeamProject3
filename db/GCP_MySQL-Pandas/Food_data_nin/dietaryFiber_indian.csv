@@ -1,0 +1,107 @@
+Food Name,Food Category,TDF(g),IDF(g),SDF(g)
+BAJRA,cereal_grains_and_products,11.3,9.1,2.2
+JOWAR,cereal_grains_and_products,9.7,8,1.7
+MAIZE (dry),cereal_grains_and_products,11.9,11,0.9
+RAGI,cereal_grains_and_products,11.5,9.9,1.6
+RICE ( raw – milled),cereal_grains_and_products,4.1,3.2,0.9
+WHEAT ( whole,cereal_grains_and_products,12.5,9.6,2.9
+BENGAL GRAM (whole),pulses_and_legumes,28.3,25.2,3.1
+BENGAL GRAM (dhal),pulses_and_legumes,15.3,12.7,2.6
+BLACK GRAM (dhal),pulses_and_legumes,11.7,7.6,4.1
+GREEN GRAM (whole),pulses_and_legumes,16.7,14.7,2
+GREEN GRAM (dhal),pulses_and_legumes,8.2,6.5,1.7
+LENTIL (whole),pulses_and_legumes,15.8,13.5,2.3
+PEAS green,pulses_and_legumes,8.6,7.2,1.4
+RED GRAM (dhal),pulses_and_legumes,9.1,6.8,2.3
+RED GRAM (tender),pulses_and_legumes,22.6,19.8,2.8
+SOYABEAN,pulses_and_legumes,23,17.9,5.1
+AGATHI,leafy_vegetables,8.4,6.3,2.1
+AMARANTH (tender gangeticus),leafy_vegetables,4,3.1,0.9
+AMBAT CHUKA,leafy_vegetables,3.2,2.4,0.8
+CABBAGE,leafy_vegetables,2.8,2,0.8
+COLOCASIA LEAVES (green variety),leafy_vegetables,6.6,5.1,1.5
+CORIANDER LEAVES,leafy_vegetables,4.3,3,1.3
+CURRY LEAVES,leafy_vegetables,16.3,13.4,2.9
+DRUMSTICK LEAVES,leafy_vegetables,9,6.8,2.2
+FENUGREEK LEAVES,leafy_vegetables,4.7,3.2,1.5
+GOGU,leafy_vegetables,3.8,2.6,1.2
+MAYALU,leafy_vegetables,2.5,1.6,0.9
+MINT,leafy_vegetables,6.3,5,1.3
+PARUPPU KEERAI,leafy_vegetables,3.9,2.9,1
+PONNANGANNI,leafy_vegetables,7.9,6.9,1
+SPINACH,leafy_vegetables,2.5,1.8,0.7
+TAMARIND LEAVES (tender),leafy_vegetables,10.6,9.4,1.2
+BEET ROOT,roots_and_tubers,3.5,2.6,0.9
+CARROT,roots_and_tubers,4.4,3,1.4
+ONION (big),roots_and_tubers,2.5,1.7,0.8
+POTATO,roots_and_tubers,1.7,1.1,0.6
+RADHISH (table),roots_and_tubers,2.3,1.8,0.5
+SWEET POTATO,roots_and_tubers,3.9,2.6,1.3
+YAM (ordinary),roots_and_tubers,4.2,3.2,1
+BITTER GOURD,other_vegetables,4.3,3.2,1.1
+BOTTLE GOURD,other_vegetables,2,1.7,0.3
+BRINJAL,other_vegetables,6.3,4.6,1.7
+BROAD BEANS,other_vegetables,8.9,6.7,2.1
+CAULIFLOWER,other_vegetables,3.7,2.6,1.1
+CHO-CHO-MARROW,other_vegetables,1.3,0.9,0.4
+CLUSTER BEANS,other_vegetables,5.7,4.2,1.5
+COLOCASIA STEM,other_vegetables,3,2.3,0.7
+CUCUMBER,other_vegetables,2.6,2,0.6
+DRUM STICK,other_vegetables,5.8,4.8,1
+GIANT CHILLIES (capsicum),other_vegetables,2.2,2,0.2
+KOVAI,other_vegetables,2.5,1.5,1
+LADIES FINGERS,other_vegetables,3.6,2.6,1
+MANGO GREEN,other_vegetables,3,1.4,1.6
+ONION STALKS,other_vegetables,5.1,3.7,1.4
+PLANTAIN (green),other_vegetables,3.5,2.6,0.9
+RIDGE GOURD,other_vegetables,1.9,1.4,0.5
+SNAKE GOURD,other_vegetables,2.1,1.6,0.5
+COCONUT (fresh),nuts_and_oil_seeds,13.6,12.7,0.9
+GINGELLY SEEDS,nuts_and_oil_seeds,16.8,13.6,3.2
+GROUNDNUT,nuts_and_oil_seeds,11,8.5,2.5
+MUSTARD SEEDS,nuts_and_oil_seeds,13.6,10.2,3.4
+ARISITHIPPILI,condiments_and_spices,43.4,34.3,9.1
+CARDAMOM,condiments_and_spices,23,20.4,2.6
+CLOVES (dry),condiments_and_spices,35.1,28.9,6.2
+CORIANDER,condiments_and_spices,47.4,42.5,4.9
+CUMIN SEEDS,condiments_and_spices,30,25.2,4.8
+FENUGREEK SEEDS,condiments_and_spices,48.6,28.6,20
+GARLIC (dry),condiments_and_spices,5.1,2.6,2.5
+GINGER ( fresh,condiments_and_spices,6,4.7,1.3
+OMUM,condiments_and_spices,47.2,43.9,3.3
+PEPPER (dry),condiments_and_spices,35.3,32.4,2.9
+POPPY SEEDS,condiments_and_spices,33.6,22.4,11.2
+TURMERIC,condiments_and_spices,20,17.6,2.4
+AMLA,fruits,7.3,5.8,1.5
+APPLE,fruits,3.2,2.3,0.9
+BANANA RIPE,fruits,1.8,1.1,0.7
+CHERRIES (red),fruits,1.5,0.9,0.6
+DATES (dried),fruits,8.3,6.9,1.4
+DATES fresh,fruits,7.7,6.9,0.8
+FIGS (Ficus carcia),fruits,5,2.6,2.4
+GRAPES (Pale green variety),fruits,1.2,0.8,0.4
+GUAVA (country),fruits,8.5,7.1,1.4
+JACK FRUIT,fruits,3.5,2.1,1.4
+JAMBU FRUIT,fruits,3.5,2.6,0.9
+LIME (sweet -malta),fruits,2.7,1.3,1.4
+MANGO RIPE,fruits,2,1,1
+MELON (musk),fruits,0.8,0.5,0.3
+MELON (sweeter),fruits,0.6,0.3,0.3
+ORANGE,fruits,1.1,0.6,0.5
+PAPAYA (ripe),fruits,2.6,1.3,1.3
+PEACHES,fruits,1.6,1.1,0.5
+PEARS,fruits,4.3,4,0.3
+PINE APPLE,fruits,2.8,2.3,0.5
+PLUM,fruits,2.8,1.7,1.1
+POMEGRANATE,fruits,2.8,2.3,0.5
+SAPOTA,fruits,10.9,9.1,1.8
+SEETHAPHAL,fruits,5.5,4,1.5
+STRAWBERRY,fruits,2.3,1.6,0.7
+TOMATO RIPE,fruits,1.7,1.2,0.5
+ZIZYPHUS,fruits,3.8,2.8,1
+BANANAPITH,other_vegetables,2.2,2,0.2
+KEERA (green),other_vegetables,1.1,0.8,0.3
+CARAWAY SEEDS,nuts_and_oil_seeds,38.8,33.1,5.7
+CINNAMOM,nuts_and_oil_seeds,48.5,44.6,3.9
+LENTIL (dhal),pulses_and_legumes,10.3,8.3,2
+BLACK GRAM (whole),pulses_and_legumes,20.3,15.4,4.9
