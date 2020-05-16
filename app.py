@@ -1104,6 +1104,20 @@ def profile():
 
     return render_template("/profile.html", user_profile=user_profile)
 
+##################################################################################################
+# Route #11(/advancedsearch)
+# Design a query for searching a food item with minimum clue/input
+##################################################################################################
+import numpy as np
+import pandas as pd
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.preprocessing import Normalizer
+from sklearn.pipeline import make_pipeline
+from sklearn.metrics.pairwise import cosine_similarity
+
+@app.route("/advancedsearch", methods=["GET", "POST"])
+def advancedsearch():
+    pass
 
 if __name__ == "__main__":
     app.run(debug=True)

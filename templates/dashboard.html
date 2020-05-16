@@ -4,6 +4,7 @@
 {% block bodycontent %}
 
 <link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
+<link rel="stylesheet" href="../static/css/advancedsearch.css">
 
 <section class="hero-section set-bg">
     <div class="container">
@@ -11,7 +12,6 @@
             <div class="section-title register-text">
                 <h4>Today's Statistics</h4>
                 <table class="table table-dark" id="diary-table">
-
 
                     <thead>                  
                         <tr>
@@ -120,12 +120,32 @@
                         <div class="col-2">
                             <label for="name">Servings</label>
                             <input type="number" min="1" max="20" placeholder="How much?" id="servings_count" name="servings_count">
-                          </div>
-                            </div>
-                            <button type="submit" class="register-btn">Add</button>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-2"></div>
+                        <div class="col-2"></div>
+                        <div class="col">
+                            <a href="#" class="advancedlink" onclick="openForm()" style="font-size:12px">Advanced Search</a> 
+                            <div class="bg-modal" id="myForm">
+                                <div class="modal-contents">
+                                    <div class="close" onclick="closeForm()">+</div>
+                                    <form action="" class="form-container">
+                                        <input type="text" placeholder="Enter Food Item Here">
+                                        <button type="submit" class="btn">Submit</button>
+                                    </form>
+                                </div>
+                            </div>                           
+                        </div>
+                        <div class="col-2"></div>
+                    </div>
+
+                    <button type="submit" class="register-btn">Add</button>
                 </form>
             </div>
         </div>  
+
         <div class="row-sm">
             <div class="register-text">
                 <div class="section-title">
@@ -141,7 +161,7 @@
                               <th scope="col">Meal Type</th>
                               <th scope="col">Food</th>
                               <th scope="col">Servings</th>
-                              <!-- <th scope="col">Calories (kcal)</th>                       -->
+                              <!-- <th scope="col">Calories (kcal)</th>                      
                             </tr>
                         </thead>
 
@@ -214,8 +234,16 @@
  
 </script>
 
-<script src="/static/js/date.js"></script>
+<script>
+    function openForm() {
+      document.getElementById("myForm").style.display = "flex";
+    }
+    function closeForm() {
+      document.getElementById("myForm").style.display = "none";
+    }
+</script>
 
+<script src="/static/js/date.js"></script>
 
 {% with messages = get_flashed_messages() %}
   {% if messages %}
@@ -225,8 +253,6 @@
     {% endfor %}
 </script>
   {% endif %}
-{% endwith %}
+{% endwith %}  
 
-  
-
-  {% endblock %}
+{% endblock %}
