@@ -22,6 +22,11 @@ function getDate() {
     }
     
     document.getElementById("inputdate").max = today;
+    if(document.getElementById("end_date").value ==''){
+        document.getElementById("end_date").value = today;
+    }
+    
+    document.getElementById("end_date").max = today;
 
   }
   

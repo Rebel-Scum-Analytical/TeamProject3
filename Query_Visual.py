@@ -573,7 +573,7 @@ def creatUserPersonalJson(user_info):
     return user_personal_data
 
 
-def creatplotdata(user_info):
+def creatplotdata(user_info,num_days):
     userdata_nutrition_data = user_info["userdata_nutrition_data"]
     user_personal_data = user_info["user_personal_data"]
     plot_type = user_info["plot_type"]
@@ -621,7 +621,7 @@ def creatplotdata(user_info):
             y2.append(
                 f"Current Value : {current_value},Max value : {dri_micro_nutrient_vitamins(query_data2)}, {dri_micro_nutrient_vitamins(query_data3)}"
             )
-        temp = [float(i) for item in temp for i in item]
+        temp = [float(i) * num_days for item in temp for i in item]
         perc_s = [i / j for i, j in zip(current_values, temp)]
 
         trace1 = [{"x": y1_1, "y": perc_s, "text": y2, "type": "bar",}]
@@ -647,7 +647,7 @@ def creatplotdata(user_info):
             y2.append(
                 f"Current Value : {current_value},Max Value: {dri_macro_nutrient(query_data)} {dri_macro_nutrient(query_data3)}"
             )
-        temp = [float(item) for item in temp]
+        temp = [float(item) * num_days for item in temp]
 
         perc_s = [i / j for i, j in zip(current_values, temp)]
         trace2 = [{"x": y1_1, "y": perc_s, "text": y2, "type": "bar",}]
