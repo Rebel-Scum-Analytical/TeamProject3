@@ -635,17 +635,22 @@ def analysis():
 
     # plot_type = request.args.get("selectnutrients")
     plot_type = "All"
-    desired_date =  request.args.get("date")
-    start_date = request.args.get('date')
-    end_date = request.args.get('enddate')
-    starting_date = dateutil.parser.parse(start_date)
-    ending_date =  dateutil.parser.parse(end_date)
-
-    # plus one to include start and end dates into num_days
-    num_days= (relativedelta.relativedelta(ending_date, starting_date).days)+1
+    desired_date = request.args.get("date")
+    end_date = request.args.get("enddate")
+    # desired_date =  request.args.get('date')
+    # # start_date = request.args.get('date')
+    # end_date = request.args.get('enddate')
+ 
     
 
     if request.method == "GET" and desired_date :
+        print(f"desired date : {desired_date}")
+        print(f"end date : {end_date}")
+        starting_date = dateutil.parser.parse(desired_date)
+        ending_date =  dateutil.parser.parse(end_date)
+
+        # plus one to include start and end dates into num_days
+        num_days= (relativedelta.relativedelta(ending_date, starting_date).days)+1
         
         cmd = (
             db.session.query(
@@ -972,7 +977,7 @@ def analysis():
             .join(Meal_record, Nutrition.NDB_No == Meal_record.meal_item_code)
             .filter(Meal_record.username == session["username"])
             #.filter(Meal_record.meal_date == desired_date)
-            .filter((Meal_record.meal_date >= start_date),(Meal_record.meal_date <= end_date))
+            .filter((Meal_record.meal_date >= desired_date),(Meal_record.meal_date <= end_date))
         )
         
         
