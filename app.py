@@ -44,6 +44,8 @@ from Query_Visual import (
 import json
 import plotly
 import plotly.graph_objects as go
+from dateutil import relativedelta
+import dateutil.parser
 
 #################################################
 # Flask Setup
@@ -398,7 +400,7 @@ def dashboard():
     session_user_name = session["username"]
     user_personal_data = getUserpersonalData(session_user_name)
     daily_goal_list = CalculateDailyGoals(user_personal_data)
-    print(daily_goal_list)
+    #print(daily_goal_list)
 
     form = AddMeal(request.form)
     if form.validate_on_submit():
@@ -626,16 +628,25 @@ def food_tracker():
 #############################################################################################
 @app.route("/analysis", methods=["GET"])
 def analysis():
+
     if checkLoggedIn() == False:
         return redirect("/login")
     session["page"] = "analysis"
 
     # plot_type = request.args.get("selectnutrients")
     plot_type = "All"
-    desired_date = request.args.get("date")
+    desired_date =  request.args.get("date")
+    start_date = request.args.get('date')
+    end_date = request.args.get('enddate')
+    starting_date = dateutil.parser.parse(start_date)
+    ending_date =  dateutil.parser.parse(end_date)
 
-    if request.method == "GET" and desired_date:
+    # plus one to include start and end dates into num_days
+    num_days= (relativedelta.relativedelta(ending_date, starting_date).days)+1
+    
 
+    if request.method == "GET" and desired_date :
+        
         cmd = (
             db.session.query(
                 func.round(
@@ -960,12 +971,15 @@ def analysis():
             )
             .join(Meal_record, Nutrition.NDB_No == Meal_record.meal_item_code)
             .filter(Meal_record.username == session["username"])
-            .filter(Meal_record.meal_date == desired_date)
+            #.filter(Meal_record.meal_date == desired_date)
+            .filter((Meal_record.meal_date >= start_date),(Meal_record.meal_date <= end_date))
         )
-
+        
+        
         nutri_stats = cmd.first()
 
         userdata_nutrition_data = createJson(nutri_stats)
+        print(userdata_nutrition_data)
         session_user_name = session["username"]
         user_personal_data = getUserpersonalData(session_user_name)
 
@@ -974,11 +988,11 @@ def analysis():
             "user_personal_data": user_personal_data,
             "plot_type": plot_type,
         }
-        graphJSON = creatplotdata(user_info)
+        graphJSON = creatplotdata(user_info,num_days)
         ids = ["plot1", "plot2", "plot3"]
 
         return render_template(
-            "Daily_vizualization.html", ids=ids, graphJSON=graphJSON, date=desired_date
+            "Daily_vizualization.html", ids=ids, graphJSON=graphJSON, date=desired_date ,  enddate=end_date
         )
     return render_template("Daily_vizualization.html")
 
