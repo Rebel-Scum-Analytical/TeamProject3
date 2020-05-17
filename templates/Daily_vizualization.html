@@ -47,6 +47,9 @@
             <div class="row">
                 <div class="col">
                     {% if date is defined %}
+					<form method="POST">
+						<button id= "reco" name="foodreco" type="submit">Click for food recommendations</button>
+					</form>
                     <h4 style="color:white; text-align:center">Nutritional contents of your meal between {{date}} and {{enddate}}</h2>
             <div id ="plot1">
             {% endif %}                    

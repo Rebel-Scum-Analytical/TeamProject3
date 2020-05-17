@@ -46,6 +46,12 @@ import plotly
 import plotly.graph_objects as go
 from dateutil import relativedelta
 import dateutil.parser
+import pandas as pd
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+from food_recommendation import (
+hillClimbing,
+)
 
 #################################################
 # Flask Setup
@@ -62,7 +68,7 @@ app.secret_key = "1a2b3c4d5e"
 HOSTNAME = "127.0.0.1"
 PORT = 3306
 USERNAME = "root"
-PASSWORD = "password"
+PASSWORD = "uv9y9g5t"
 DIALECT = "mysql"
 DRIVER = "pymysql"
 DATABASE = "usda"
@@ -626,7 +632,11 @@ def food_tracker():
 # Route #6(/analysis)
 # Design a query to display daily visualisations of the food intake by the user
 #############################################################################################
-@app.route("/analysis", methods=["GET"])
+deficient_nutrients = list()
+displaylist = list()
+target_nutrients_corrected= list()
+
+@app.route("/analysis", methods=["GET", "POST"])
 def analysis():
 
     if checkLoggedIn() == False:
@@ -637,9 +647,7 @@ def analysis():
     plot_type = "All"
     desired_date = request.args.get("date")
     end_date = request.args.get("enddate")
-    # desired_date =  request.args.get('date')
-    # # start_date = request.args.get('date')
-    # end_date = request.args.get('enddate')
+
  
     
 
@@ -993,12 +1001,25 @@ def analysis():
             "user_personal_data": user_personal_data,
             "plot_type": plot_type,
         }
-        graphJSON = creatplotdata(user_info,num_days)
+        return_list = creatplotdata(user_info,num_days)
+        graphJSON = return_list[0]
+        deficient_nutrients = return_list[1]
+        displaylist = return_list[2]
+        target_nutrients_corrected= return_list[3]
+
         ids = ["plot1", "plot2", "plot3"]
 
         return render_template(
             "Daily_vizualization.html", ids=ids, graphJSON=graphJSON, date=desired_date ,  enddate=end_date
         )
+    if request.method == "POST":
+
+        print("Entered function")
+        print(f" first arg : {deficient_nutrients}")
+        print(f" second arg : {displaylist}")
+        print(f" third arg : {target_nutrients_corrected}")
+        #basket_NDB = hillClimbing(deficient_nutrients,displaylist, target_nutrients_corrected,3)
+        # print(basket_NDB)
     return render_template("Daily_vizualization.html")
 
 
