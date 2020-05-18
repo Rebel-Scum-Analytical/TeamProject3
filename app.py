@@ -1,5 +1,12 @@
 # Dependencies
 import os
+import csv
+import numpy as np
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.preprocessing import Normalizer
+from sklearn.pipeline import make_pipeline
+from sklearn.metrics.pairwise import cosine_similarity
+import pandas as pd 
 import sqlalchemy
 import json
 import decimal
@@ -44,8 +51,6 @@ from Query_Visual import (
 import json
 import plotly
 import plotly.graph_objects as go
-from dateutil import relativedelta
-import dateutil.parser
 
 #################################################
 # Flask Setup
@@ -400,7 +405,7 @@ def dashboard():
     session_user_name = session["username"]
     user_personal_data = getUserpersonalData(session_user_name)
     daily_goal_list = CalculateDailyGoals(user_personal_data)
-    #print(daily_goal_list)
+    print(daily_goal_list)
 
     form = AddMeal(request.form)
     if form.validate_on_submit():
@@ -628,7 +633,6 @@ def food_tracker():
 #############################################################################################
 @app.route("/analysis", methods=["GET"])
 def analysis():
-
     if checkLoggedIn() == False:
         return redirect("/login")
     session["page"] = "analysis"
@@ -636,22 +640,9 @@ def analysis():
     # plot_type = request.args.get("selectnutrients")
     plot_type = "All"
     desired_date = request.args.get("date")
-    end_date = request.args.get("enddate")
-    # desired_date =  request.args.get('date')
-    # # start_date = request.args.get('date')
-    # end_date = request.args.get('enddate')
- 
-    
 
-    if request.method == "GET" and desired_date :
-        print(f"desired date : {desired_date}")
-        print(f"end date : {end_date}")
-        starting_date = dateutil.parser.parse(desired_date)
-        ending_date =  dateutil.parser.parse(end_date)
+    if request.method == "GET" and desired_date:
 
-        # plus one to include start and end dates into num_days
-        num_days= (relativedelta.relativedelta(ending_date, starting_date).days)+1
-        
         cmd = (
             db.session.query(
                 func.round(
@@ -976,15 +967,12 @@ def analysis():
             )
             .join(Meal_record, Nutrition.NDB_No == Meal_record.meal_item_code)
             .filter(Meal_record.username == session["username"])
-            #.filter(Meal_record.meal_date == desired_date)
-            .filter((Meal_record.meal_date >= desired_date),(Meal_record.meal_date <= end_date))
+            .filter(Meal_record.meal_date == desired_date)
         )
-        
-        
+
         nutri_stats = cmd.first()
 
         userdata_nutrition_data = createJson(nutri_stats)
-        print(userdata_nutrition_data)
         session_user_name = session["username"]
         user_personal_data = getUserpersonalData(session_user_name)
 
@@ -993,11 +981,11 @@ def analysis():
             "user_personal_data": user_personal_data,
             "plot_type": plot_type,
         }
-        graphJSON = creatplotdata(user_info,num_days)
+        graphJSON = creatplotdata(user_info)
         ids = ["plot1", "plot2", "plot3"]
 
         return render_template(
-            "Daily_vizualization.html", ids=ids, graphJSON=graphJSON, date=desired_date ,  enddate=end_date
+            "Daily_vizualization.html", ids=ids, graphJSON=graphJSON, date=desired_date
         )
     return render_template("Daily_vizualization.html")
 
@@ -1108,6 +1096,43 @@ def profile():
 
     return render_template("/profile.html", user_profile=user_profile)
 
+# Method to gget the recommendation list of items similar to food items in advanced search
+# filepath = "/db/nutrition.csv"
+df = pd.read_csv("db/nutrition.csv")
+print("Nutrition data is: ")
+print(df.head())
+X_text = df["Shrt_Desc"].values
+cv = make_pipeline(
+CountVectorizer(
+    ngram_range=(3, 7),
+    analyzer="char"),
+    Normalizer())
+cv.fit(X_text)
+X = cv.transform(X_text)
+## PK add code part1  to get term from advanced search box ##
+# X_term = cv.transform(["choclte chip sookies"])
+# simularities = cosine_similarity(X_term, X)
+def advanced_search_func(term):
+    X_term = cv.transform([term])
+    simularities = cosine_similarity(X_term, X)
+    k = 10
+    result = np.sort(np.argpartition(simularities[0], len(simularities[0]) - k)[-k:])
+    return df.loc[result][['NDB_No', 'Shrt_Desc', 'Weight_desc', 'Weight_grams']]
+    
+@app.route("/advanced_search",methods=["GET"])
+def advanced_search():
+    if checkLoggedIn() == False:
+        return redirect("/login")
+    # session["page"] = "dashboard"  
+    # Get the term from advanced dearch bar on dashoard page
+    term = request.args.get("term")
+    if not term:
+        return '{  "data": [] } '
+    ## Add logic here  to find the search term ##
+    print('term: '+term)
+    searchResult = advanced_search_func(term)
+    return json.dumps(searchResult.values.tolist(), cls=DecimalEncoder)
+    #return(json.dumps(str(searchResult.values.tolist())))
 
 if __name__ == "__main__":
     app.run(debug=True)
