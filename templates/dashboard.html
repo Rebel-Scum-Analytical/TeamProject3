@@ -4,7 +4,7 @@
 {% block bodycontent %}
 
 <link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
-<link rel="stylesheet" href="../static/css/advancedsearch.css">
+<link rel="stylesheet" href="../static/css/advancedsearch.css" type="text/css">
 
 <section class="hero-section set-bg">
     <div class="container">
@@ -128,13 +128,11 @@
                         <div class="col-2"></div>
                         <div class="col">
                             <a href="#" class="advancedlink" onclick="openForm()" style="font-size:12px">Advanced Search</a> 
-                            <div class="bg-modal" id="myForm">
+                            <div class="bg-modal" id="myForm" style="width:520px; height:300px">
                                 <div class="modal-contents">
                                     <div class="close" onclick="closeForm()">+</div>
-                                    <form action="" class="form-container">
                                         <input type="text" placeholder="Enter Food Item Here">
                                         <button type="submit" class="btn">Submit</button>
-                                    </form>
                                 </div>
                             </div>                           
                         </div>
@@ -244,6 +242,7 @@
 </script>
 
 <script src="/static/js/date.js"></script>
+
 
 {% with messages = get_flashed_messages() %}
   {% if messages %}
