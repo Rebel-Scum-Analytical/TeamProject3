@@ -617,6 +617,7 @@ def food_tracker():
         .order_by(Meal_record.meal_date.desc())
         .limit(100)
     )
+    
 
     return render_template("food_history.html", top100_entries=top100_entries)
 
@@ -632,12 +633,14 @@ def food_tracker():
 # Route #6(/analysis)
 # Design a query to display daily visualisations of the food intake by the user
 #############################################################################################
-deficient_nutrients = list()
-displaylist = list()
-target_nutrients_corrected= list()
+
 
 @app.route("/analysis", methods=["GET", "POST"])
 def analysis():
+
+    global deficient_nutrients
+    global displaylist
+    global target_nutrients_corrected
 
     if checkLoggedIn() == False:
         return redirect("/login")
@@ -1007,19 +1010,47 @@ def analysis():
         displaylist = return_list[2]
         target_nutrients_corrected= return_list[3]
 
-        ids = ["plot1", "plot2", "plot3"]
+        plot_ids = ["plot1", "plot2", "plot3"]
 
         return render_template(
-            "Daily_vizualization.html", ids=ids, graphJSON=graphJSON, date=desired_date ,  enddate=end_date
+            "Daily_vizualization.html", plot_ids=plot_ids, graphJSON=graphJSON, date=desired_date ,  enddate=end_date
         )
     if request.method == "POST":
 
         print("Entered function")
-        print(f" first arg : {deficient_nutrients}")
-        print(f" second arg : {displaylist}")
-        print(f" third arg : {target_nutrients_corrected}")
-        #basket_NDB = hillClimbing(deficient_nutrients,displaylist, target_nutrients_corrected,3)
-        # print(basket_NDB)
+        
+       
+        basket_NDB = hillClimbing(deficient_nutrients,displaylist, target_nutrients_corrected, 5)
+        print(basket_NDB)
+    #     list_of_ndb = basket_NDB['NDB_No'].to_list()
+    #     nutriData = (
+    #         db.session.query(Nutrition).filter(Nutrition.NDB_No.in_(list_of_ndb)).all()
+    #     )
+
+    #     df_rainfall = pd.DataFrame(
+    #     [
+    #         {
+    #             "Rainfall": item[0],
+    #             "Temperature":item[1],
+    #             "Station": item[2],
+    #             "Name": item[3],
+    #             "Latitude": item[4],
+    #             "Longitude": item[5],
+    #             "Elevation": item[6],
+    #         }
+    #         for item in items
+    #     ]
+    # )
+        
+        
+
+        # jsonfiles = json.loads(basket_NDB.to_json(orient='records'))
+        
+        return render_template("food_reco.html", tables=[basket_NDB.to_html(classes='table table-dark', table_id ='diary-table')], titles=basket_NDB.columns.values)
+
+            
+
+
     return render_template("Daily_vizualization.html")
 
 

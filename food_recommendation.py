@@ -5,26 +5,27 @@ import random
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 
+global df_for_cluster 
+df_for_cluster = pd.read_csv("nutrition_prediction.csv")
+
+indices = [i for i in df_for_cluster.index if (i >= df_for_cluster.index[df_for_cluster["NDB_No"] == 18369].values[0]) and ( i <= df_for_cluster.index[df_for_cluster["NDB_No"] == 18375].values[0])]
+df_for_cluster = df_for_cluster.drop(indices, axis=0)
+df_for_cluster = df_for_cluster.drop(df_for_cluster.index[df_for_cluster["FdGrp_Cd"] == 300], axis=0)
+df_for_cluster = df_for_cluster.drop(df_for_cluster.index[df_for_cluster["FdGrp_Cd"] == 200], axis=0)
+
 
 def Findtheclusters(element, n_clus, isHigh, threshold):
 
-    df = pd.read_csv("nutrition_prediction.csv")
-    
-    indices = [i for i in df.index if (i >= df.index[df["NDB_No"] == 18369].values[0]) and ( i <= df.index[df["NDB_No"] == 18375].values[0])]
-    df = df.drop(indices, axis=0)
-    df = df.drop(df.index[df["FdGrp_Cd"] == 300], axis=0)
-
-    print(df.columns)
     print(element)
 
     X= pd.get_dummies(
-        df[[column for column in df.columns if column in element]], drop_first = True
+        df_for_cluster[[column for column in df_for_cluster.columns if column in element]], drop_first = True
     ).values
 
     scaler = StandardScaler()
     scaler.fit(X)
     X_scaled = scaler.transform(X)
-    kmeans = KMeans(n_clusters=n_clus,n_init = 100, random_state=0).fit(X_scaled)
+    kmeans = KMeans(n_clusters=n_clus,n_init = 10, random_state=0).fit(X_scaled)
 
     element.append('NDB_No')
 
@@ -36,7 +37,7 @@ def Findtheclusters(element, n_clus, isHigh, threshold):
         df_new = pd.DataFrame()
        
         for item in indices:
-            df_new = df_new.append(df.loc[(df.index==item),element], ignore_index=True)
+            df_new = df_new.append(df_for_cluster.loc[(df_for_cluster.index==item),element], ignore_index=True)
 
         average_nutrition.append(df_new[element].sum()[0]/len(df_new.index))
 
@@ -77,7 +78,6 @@ def hillClimbing(nutrients, displaylist, target, items_in_basket):
  
     nutrients = nutrients
   
-    df = pd.read_csv("nutrition_prediction.csv")
     basket = pd.DataFrame()
     basket_NDB  = pd.DataFrame()
     sum_C =0
@@ -95,7 +95,7 @@ def hillClimbing(nutrients, displaylist, target, items_in_basket):
         # to track number of iterations of external while loop
         iteration += 1
         print(f"Iteration : {iteration}")
-        if(iteration == 2):
+        if(iteration == 10):
             print(f"Minimum score : {minScore}")
             print(basket_NDB)     
             break
@@ -128,14 +128,14 @@ def hillClimbing(nutrients, displaylist, target, items_in_basket):
             High_cluster = True
 
         print(abs_diff[max_nutrient_error])       
-        max_nutrient_sum_sq = Score_total.index(max(Score_total))
+        
         selected_list_food = Findtheclusters([nutrients[max_nutrient_error]], 3, High_cluster, abs_diff[max_nutrient_error])
         print(selected_list_food)
         while True:
             index = random.choice(selected_list_food)
-            index1 = random.choice(selected_list_food)
+            
             print(index)
-            print(index1)
+            
 
             if(index in used_index):
                 continue
@@ -143,8 +143,8 @@ def hillClimbing(nutrients, displaylist, target, items_in_basket):
                 used_index.append(index)
                 break
         
-        food1 = df.loc[df["NDB_No"] == index, nutrients]
-        food1_NDB = df.loc[df["NDB_No"] == index, displaylist]
+        food1 = df_for_cluster.loc[df_for_cluster["NDB_No"] == index, nutrients]
+        food1_NDB = df_for_cluster.loc[df_for_cluster["NDB_No"] == index, displaylist]
         prev_score = currentScore
         if (minScore > prev_score):
             minScore = prev_score
@@ -174,11 +174,13 @@ def hillClimbing(nutrients, displaylist, target, items_in_basket):
            
             Score_total = calcScore(target, sum_C)
             currentScore = sum(Score_total)
-            if (currentScore > minScore):
+            if ((currentScore > minScore) or (len(basket.index) > NoBasketEnteries)):
             
                 maxpos = score_list_sum.index(max(score_list_sum)) 
                 basket.drop(index=maxpos, inplace=True)
                 basket.reset_index(inplace = True, drop=True)
+                basket_NDB.drop(index=maxpos, inplace=True)
+                basket_NDB.reset_index(inplace = True, drop=True)
                 
             elif (currentScore <= minScore):
                 continue
