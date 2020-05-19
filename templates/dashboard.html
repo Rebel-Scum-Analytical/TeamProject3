@@ -123,7 +123,7 @@
                         </div>
                         <div class="col-2">
                             <label for="name">Servings</label>
-                            <input type="number" min="1" max="20" placeholder="How much?" id="servings_count" name="servings_count">
+                            <input type="number  step=0.1" min="1" max="20" placeholder="How much?" id="servings_count" name="servings_count">
                         </div>
                     </div>
                     <button type="submit" class="register-btn">Add</button>
@@ -154,7 +154,8 @@
                                 <td>{{ query_val.meal_date }}</td>
                                 <td>{{ query_val.type }}</td>
                                 <td>{{ query_val.meal_desc }}</td>
-                                <td>{{ query_val.amount |round | int }}</td>
+                                <!-- <td>{{ query_val.amount |round | int }}</td> -->
+                                <td>{{ query_val.amount }}</td>
                             </tr>
                             {% endfor %}
 

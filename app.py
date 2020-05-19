@@ -38,7 +38,7 @@ from wtforms import (
     SelectField,
     DateField,
     DecimalField,
-    SubmitField,
+    SubmitField
 )
 from wtforms.validators import InputRequired, Length, NumberRange, EqualTo
 import datetime as dt
