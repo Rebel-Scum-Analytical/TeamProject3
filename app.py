@@ -53,6 +53,16 @@ import json
 import plotly
 import plotly.graph_objects as go
 
+from dateutil import relativedelta
+import dateutil.parser
+import pandas as pd
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+from food_recommendation import (
+hillClimbing,
+)
+
+
 #################################################
 # Flask Setup
 #################################################
@@ -654,6 +664,7 @@ def food_tracker():
         .order_by(Meal_record.meal_date.desc())
         .limit(100)
     )
+    
 
     return render_template("food_history.html", top100_entries=top100_entries)
 
@@ -669,8 +680,16 @@ def food_tracker():
 # Route #6(/analysis)
 # Design a query to display daily visualisations of the food intake by the user
 #############################################################################################
-@app.route("/analysis", methods=["GET"])
+
+
+@app.route("/analysis", methods=["GET", "POST"])
 def analysis():
+
+
+    global deficient_nutrients
+    global displaylist
+    global target_nutrients_corrected
+
     if checkLoggedIn() == False:
         return redirect("/login")
     session["page"] = "analysis"
@@ -679,7 +698,20 @@ def analysis():
     plot_type = "All"
     desired_date = request.args.get("date")
 
-    if request.method == "GET" and desired_date:
+    end_date = request.args.get("enddate")
+
+ 
+    
+
+    if request.method == "GET" and desired_date :
+        print(f"desired date : {desired_date}")
+        print(f"end date : {end_date}")
+        starting_date = dateutil.parser.parse(desired_date)
+        ending_date =  dateutil.parser.parse(end_date)
+
+        # plus one to include start and end dates into num_days
+        num_days= (relativedelta.relativedelta(ending_date, starting_date).days)+1
+        
 
         cmd = (
             db.session.query(
@@ -1019,12 +1051,29 @@ def analysis():
             "user_personal_data": user_personal_data,
             "plot_type": plot_type,
         }
-        graphJSON = creatplotdata(user_info)
-        ids = ["plot1", "plot2", "plot3"]
+
+        return_list = creatplotdata(user_info,num_days)
+        graphJSON = return_list[0]
+        deficient_nutrients = return_list[1]
+        displaylist = return_list[2]
+        target_nutrients_corrected= return_list[3]
+
+        plot_ids = ["plot1", "plot2", "plot3"]
 
         return render_template(
-            "Daily_vizualization.html", ids=ids, graphJSON=graphJSON, date=desired_date
+            "Daily_vizualization.html", plot_ids=plot_ids, graphJSON=graphJSON, date=desired_date ,  enddate=end_date
+
         )
+    if request.method == "POST":
+
+        basket_NDB = hillClimbing(deficient_nutrients,displaylist, target_nutrients_corrected, 5)
+        print(basket_NDB)
+    
+        return render_template("food_reco.html", tables=[basket_NDB.to_html(classes='table table-dark', table_id ='diary-table')], titles=basket_NDB.columns.values)
+
+            
+
+
     return render_template("Daily_vizualization.html")
 
 

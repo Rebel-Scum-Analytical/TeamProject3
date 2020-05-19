@@ -624,6 +624,11 @@ def creatplotdata(user_info,num_days):
         temp = [float(i) * num_days for item in temp for i in item]
         perc_s = [i / j for i, j in zip(current_values, temp)]
 
+        # below lines calculate the deficient nutrients
+        deficit_micro = [(j - i/100) for i,j in zip(current_values, temp)]
+        deficit_micro_perc = [i*100/j for i,j in zip(deficit_micro, temp)]
+        keys_micro = y1_1
+
         trace1 = [{"x": y1_1, "y": perc_s, "text": y2, "type": "bar",}]
     if plot_type == "Macro Nutrients" or plot_type == "All":
         y1 = []
@@ -650,6 +655,11 @@ def creatplotdata(user_info,num_days):
         temp = [float(item) * num_days for item in temp]
 
         perc_s = [i / j for i, j in zip(current_values, temp)]
+
+        deficit_macro = [(j - i/100) for i,j in zip(current_values, temp)]
+        deficit_macro_perc = [i*100/j for i,j in zip(deficit_macro, temp)]
+        keys_macro = y1_1
+
         trace2 = [{"x": y1_1, "y": perc_s, "text": y2, "type": "bar",}]
     if plot_type == "Calories" or plot_type == "All":
         data = userdata_nutrition_data["calories"]
@@ -732,8 +742,24 @@ def creatplotdata(user_info,num_days):
         {"data": trace3, "layout": layout3},
     ]
 
+    deficit_macro_gt_50 = [item if item>= 70 else 0 for item in deficit_macro_perc]
+    deficit_micro_gt_50= [item if item>= 70 else 0 for item in deficit_micro_perc]
+
+    deficient_nutrients = [i for i,j in zip(keys_micro, deficit_micro_gt_50) if j > 0 ]
+    deficient_nutrients.extend( [i for i,j in zip(keys_macro, deficit_macro_gt_50) if j > 0 ])
+
+      
+    targets = [i for i,j in zip(deficit_micro, deficit_micro_gt_50) if j > 0 ] 
+    targets.extend([i for i,j in zip(deficit_macro, deficit_macro_gt_50) if j > 0 ] )
+    target_nutrients_corrected = [ i*1000 if (j == 'Potassium') or (j =="Sodium")or (j =="Water") else i if (j!= "Copper") else i/1000  for i,j in zip(targets, deficient_nutrients) ]
+
+    print(f"deficient nutrients : {deficient_nutrients}")
+    print(f"Target values of nutrients : {targets}")
+    print(f"Corrected Target values of nutrients : {target_nutrients_corrected}")
+    displaylist = ["NDB_No", "Shrt_Desc", "Energy"] + deficient_nutrients
     graphJSON = json.dumps(graphs, cls=plotly.utils.PlotlyJSONEncoder)
-    return graphJSON
+
+    return [graphJSON, deficient_nutrients,displaylist, target_nutrients_corrected]
 
 
 if __name__ == "__main__":

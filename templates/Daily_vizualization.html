@@ -10,6 +10,8 @@
         margin-left: -1px;
     }
 </style>
+
+
 {% block bodycontent %}
 
 <section class="hero-section" data-setbg="../static/images/food.jpg">
@@ -47,6 +49,9 @@
             <div class="row">
                 <div class="col">
                     {% if date is defined %}
+					<form action="" method="POST" >
+						<input id= "submit" value="Click to get the food recommendations!" type="submit">
+					</form>
                     <h4 style="color:white; text-align:center">Nutritional contents of your meal between {{date}} and {{enddate}}</h2>
             <div id ="plot1">
             {% endif %}                    
@@ -68,17 +73,23 @@
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.5.0/d3.min.js"></script> 
+  
   <script type="text/javascript">
 
     var graphs = {{graphJSON | safe}}
-    var ids = {{ids | safe}};
+    var ids = {{plot_ids | safe}}
+
 
     for(var i in graphs) {
         Plotly.plot(ids[i], // the ID of the div, created above
                     graphs[i].data,
                     graphs[i].layout || {});
     }
+
+
+
   </script>
+
 <script src="/static/js/date1.js"></script>
 
   {% endblock %}
