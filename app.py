@@ -1037,7 +1037,7 @@ def analysis():
             )
             .join(Meal_record, Nutrition.NDB_No == Meal_record.meal_item_code)
             .filter(Meal_record.username == session["username"])
-            .filter(Meal_record.meal_date == desired_date)
+            .filter((Meal_record.meal_date >= desired_date),(Meal_record.meal_date <= end_date))
         )
 
         nutri_stats = cmd.first()
