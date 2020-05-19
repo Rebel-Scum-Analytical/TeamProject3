@@ -820,9 +820,7 @@ ul, ol {
 	margin-bottom: 12px;
 }
 .register-text {
-	height: auto; /*if more info comes on the page, it will stretch down*/
-    width: 1000px;
-    margin: 0 auto; /*this will cause the div to be in the center*/ 
+	padding: 20px;
 	background: #dfdddd;
 }
 .register-text .register-form label {

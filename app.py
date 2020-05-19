@@ -1,5 +1,13 @@
 # Dependencies
 import os
+import csv
+import numpy as np
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.preprocessing import Normalizer
+from sklearn.pipeline import make_pipeline
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.preprocessing import normalize
+import pandas as pd 
 import sqlalchemy
 import json
 import decimal
@@ -44,6 +52,7 @@ from Query_Visual import (
 import json
 import plotly
 import plotly.graph_objects as go
+
 from dateutil import relativedelta
 import dateutil.parser
 import pandas as pd
@@ -52,6 +61,7 @@ from sklearn.preprocessing import StandardScaler
 from food_recommendation import (
 hillClimbing,
 )
+
 
 #################################################
 # Flask Setup
@@ -192,6 +202,43 @@ class Nutrition(db.Model):
 def setup():
     db.create_all()
 
+## Set up dataframe for recommendation models##
+# Method to get the recommendation list of items similar to food items in advanced search
+# filepath = "/db/nutrition.csv"
+df = pd.read_csv("db/nutrition.csv")
+print("Nutrition data is: ")
+print(df.head())
+X_text = df["Shrt_Desc"].values
+cv = make_pipeline(
+CountVectorizer(
+    ngram_range=(3, 7),
+    analyzer="char"),
+    Normalizer())
+cv.fit(X_text)
+X = cv.transform(X_text)
+## PK add code part1  to get term from advanced search box ##
+# X_term = cv.transform(["choclte chip sookies"])
+# simularities = cosine_similarity(X_term, X)
+
+# Method to find recommendation for similar items
+# Change the columns in dataframe declared above from butrition.csv to per calorie value
+df["Protein/cal"] = df["Protein"] / df["Energy"]
+df["Carbohydrtes/cal"] = df["Carbohydrate"] / df["Energy"]
+df["Sodium/cal"] = df["Sodium"]/ df["Energy"]
+df["Total_fat/cal"] = df["Lipid_Total"]/ df["Energy"]
+df["Cholestrol/cal"] = df["Cholestrol"]/ df["Energy"]
+df["Sugar/cal"] = df["Sugar_Total"]/ df["Energy"]
+df["Calcium/cal"] = df["Calcium"]/ df["Energy"]    
+df_percalorie = df[["NDB_No", "Shrt_Desc", "Carbohydrate", "Protein", "Lipid_Total", "Fiber", "Sugar_Total", "Protein/cal", "Carbohydrtes/cal", "Sodium/cal", "Sodium", 
+"Total_fat/cal", "Cholestrol", "Sugar/cal", "Calcium/cal", "Calcium"]]
+print("dataFrame per calorie value is: ")
+print(df_percalorie.head())
+# Removing null values from DataFrame
+df_percalorie = df_percalorie.dropna(how='any',axis=0)
+# Find the array for X values in recommendation model
+X_nut = df_percalorie[['Protein/cal', 'Carbohydrtes/cal', 'Total_fat/cal', "Total_fat/cal", 'Sugar/cal']].values
+# X_nut = df_percalorie[['Protein/cal', 'Carbohydrtes/cal', 'Sodium/cal', 'Cholestrol/cal', 'Sugar/cal', 'Calcium/cal']].values
+X_norm = Normalizer().fit_transform(X_nut)
 
 #############################################################################################
 # Route #1("/")
@@ -406,7 +453,7 @@ def dashboard():
     session_user_name = session["username"]
     user_personal_data = getUserpersonalData(session_user_name)
     daily_goal_list = CalculateDailyGoals(user_personal_data)
-    #print(daily_goal_list)
+    print(daily_goal_list)
 
     form = AddMeal(request.form)
     if form.validate_on_submit():
@@ -638,6 +685,7 @@ def food_tracker():
 @app.route("/analysis", methods=["GET", "POST"])
 def analysis():
 
+
     global deficient_nutrients
     global displaylist
     global target_nutrients_corrected
@@ -649,6 +697,7 @@ def analysis():
     # plot_type = request.args.get("selectnutrients")
     plot_type = "All"
     desired_date = request.args.get("date")
+
     end_date = request.args.get("enddate")
 
  
@@ -663,6 +712,7 @@ def analysis():
         # plus one to include start and end dates into num_days
         num_days= (relativedelta.relativedelta(ending_date, starting_date).days)+1
         
+
         cmd = (
             db.session.query(
                 func.round(
@@ -987,15 +1037,12 @@ def analysis():
             )
             .join(Meal_record, Nutrition.NDB_No == Meal_record.meal_item_code)
             .filter(Meal_record.username == session["username"])
-            #.filter(Meal_record.meal_date == desired_date)
-            .filter((Meal_record.meal_date >= desired_date),(Meal_record.meal_date <= end_date))
+            .filter(Meal_record.meal_date == desired_date)
         )
-        
-        
+
         nutri_stats = cmd.first()
 
         userdata_nutrition_data = createJson(nutri_stats)
-        print(userdata_nutrition_data)
         session_user_name = session["username"]
         user_personal_data = getUserpersonalData(session_user_name)
 
@@ -1004,6 +1051,7 @@ def analysis():
             "user_personal_data": user_personal_data,
             "plot_type": plot_type,
         }
+
         return_list = creatplotdata(user_info,num_days)
         graphJSON = return_list[0]
         deficient_nutrients = return_list[1]
@@ -1014,6 +1062,7 @@ def analysis():
 
         return render_template(
             "Daily_vizualization.html", plot_ids=plot_ids, graphJSON=graphJSON, date=desired_date ,  enddate=end_date
+
         )
     if request.method == "POST":
 
@@ -1045,6 +1094,21 @@ def checkLoggedIn():
 # of matchig food entries. When user selects any item from the list, the code displays nutrition
 # information for the selected food item
 ##################################################################################################
+# Recommendation model2 -otems similar in composition ##
+# Create a method to recommend 5 items similar to text in search string
+def similar_items(term):
+    idx = int(df_percalorie[df_percalorie['NDB_No'] == int(term)].index.values)
+    # idx = idx[0]
+    similarities = cosine_similarity(X_norm[idx].reshape(1,-1), X_norm)
+    k = 5
+    result = np.sort(np.argpartition(similarities[0], len(similarities[0]) - k)[-k:])
+    print("list of similar items: ")
+    print("result for similar items:")
+    print(df_percalorie.iloc[result].columns)
+    print(df_percalorie.iloc[result].head())
+    return df_percalorie.iloc[result].values.tolist()
+    # return
+
 @app.route("/nutrition", methods=["GET"])
 def nutrition():
     if checkLoggedIn() == False:
@@ -1057,8 +1121,11 @@ def nutrition():
         nutriData = (
             db.session.query(Nutrition).filter(Nutrition.NDB_No == ndbNo).first()
         )
-        return render_template("nutrition.html", nutriData=nutriData)
 
+        similarResult = similar_items(ndbNo)
+        print('SimilarResult')
+        print(similarResult)
+        return render_template("nutrition.html", nutriData=nutriData,similarResult=similarResult)
     return render_template("nutrition.html")
 
 
@@ -1087,6 +1154,14 @@ def logout():
 # The list will display the food item name along with the item weight in grams and weight description.
 ######################################################################################################
 class DecimalEncoder(json.JSONEncoder):
+
+
+
+
+
+
+
+
     def default(self, o):
         if isinstance(o, decimal.Decimal):
             return float(o)
@@ -1134,6 +1209,32 @@ def profile():
 
     return render_template("/profile.html", user_profile=user_profile)
 
+######################################################################################################
+# Route #11(/advanced_search)
+# Design a query for display the items similar to the text entered in search box - "Advanced search"
+######################################################################################################
+## Recommendation model1 - advance search ##
+def advanced_search_func(term):
+    X_term = cv.transform([term])
+    simularities = cosine_similarity(X_term, X)
+    k = 10
+    result = np.sort(np.argpartition(simularities[0], len(simularities[0]) - k)[-k:])
+    return df.loc[result][['NDB_No', 'Shrt_Desc', 'Weight_desc', 'Weight_grams']]
+
+@app.route("/advanced_search",methods=["GET"])
+def advanced_search():
+    if checkLoggedIn() == False:
+        return redirect("/login")
+    # session["page"] = "dashboard"  
+    # Get the term from advanced dearch bar on dashoard page
+    term = request.args.get("term")
+    if not term:
+        return '{  "data": [] } '
+    ## Add logic here  to find the search term ##
+    print('term: '+term)
+    searchResult = advanced_search_func(term)
+    return json.dumps(searchResult.values.tolist(), cls=DecimalEncoder)
+    #return(json.dumps(str(searchResult.values.tolist())))
 
 if __name__ == "__main__":
     app.run(debug=True)

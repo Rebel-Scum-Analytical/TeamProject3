@@ -79,6 +79,38 @@
 
                                 {% endif %}
 
+                                <!-- Code to display similar items from recommendationmodel 2 -->
+                                
+                               {% if similarResult is defined %}
+                               <div class="section-title">
+                                <br>   
+                                <h4>Recommendation on items similar in composition</h4>
+                           </div>
+                                <div id="table-area" class="">
+                                    <table id="food-table" class="table table-striped table-dark">
+                                        <tbody>
+                                            <tr>
+                                                <th>Item Name</th>
+                                                <th>Carbohydrate (g)</th>
+                                                <th>Protein (g)</th>
+                                                <th>Total Fat (% kcal)</th>
+                                                <th>Fiber (g)</th>
+                                                <th>Sugar Total(g)</th>
+                                            </tr>
+                                            {% for resultrow in similarResult %}
+                                            <tr>
+                                                <td>{{resultrow[1]}}</td>
+                                                <td>{{resultrow[2]|round | float}}</td>
+                                                <td>{{resultrow[3]|round | float}}</td>
+                                                <td>{{resultrow[4]|round | float}}</td>
+                                                <td>{{resultrow[5]|round | int}}</td>
+                                                <td>{{resultrow[6]|round | float}}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>  
+                                    </table>
+                                </div>      
+                                {% endif %}
                             </div>
                         </div>
                     </div>
