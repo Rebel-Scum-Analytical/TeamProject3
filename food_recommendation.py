@@ -174,7 +174,7 @@ def hillClimbing(nutrients, displaylist, target, items_in_basket):
            
             Score_total = calcScore(target, sum_C)
             currentScore = sum(Score_total)
-            if ((currentScore > minScore) or (len(basket.index) > NoBasketEnteries)):
+            if ((currentScore > minScore) and (len(basket.index) > NoBasketEnteries)):
             
                 maxpos = score_list_sum.index(max(score_list_sum)) 
                 basket.drop(index=maxpos, inplace=True)
