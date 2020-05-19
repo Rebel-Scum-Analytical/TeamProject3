@@ -429,7 +429,7 @@ class AddMeal(FlaskForm):
         rounding=None,
         validators=[
             InputRequired(message="Serving count is required"),
-            NumberRange(min=1, max=20),
+            NumberRange(min=0.25, max=20),
         ],
     )
     foodNameId = StringField("foodNameId")
