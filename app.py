@@ -1017,35 +1017,9 @@ def analysis():
         )
     if request.method == "POST":
 
-        print("Entered function")
-        
-       
         basket_NDB = hillClimbing(deficient_nutrients,displaylist, target_nutrients_corrected, 5)
         print(basket_NDB)
-    #     list_of_ndb = basket_NDB['NDB_No'].to_list()
-    #     nutriData = (
-    #         db.session.query(Nutrition).filter(Nutrition.NDB_No.in_(list_of_ndb)).all()
-    #     )
-
-    #     df_rainfall = pd.DataFrame(
-    #     [
-    #         {
-    #             "Rainfall": item[0],
-    #             "Temperature":item[1],
-    #             "Station": item[2],
-    #             "Name": item[3],
-    #             "Latitude": item[4],
-    #             "Longitude": item[5],
-    #             "Elevation": item[6],
-    #         }
-    #         for item in items
-    #     ]
-    # )
-        
-        
-
-        # jsonfiles = json.loads(basket_NDB.to_json(orient='records'))
-        
+    
         return render_template("food_reco.html", tables=[basket_NDB.to_html(classes='table table-dark', table_id ='diary-table')], titles=basket_NDB.columns.values)
 
             
