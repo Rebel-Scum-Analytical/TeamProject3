@@ -50,11 +50,18 @@ def Findtheclusters(element, n_clus, isHigh, threshold):
     if (isHigh):
         if threshold > 0.25:
             if (len(Df_cluster_list[high_cluster_index]) <=3):
-                return Df_cluster_list[mid_cluster_index]["NDB_No"]
+                if (len(Df_cluster_list[mid_cluster_index]) <=3):
+                    return Df_cluster_list[low_cluster_index]["NDB_No"]
+                else:
+                    return Df_cluster_list[mid_cluster_index]["NDB_No"]
             else:
                 return Df_cluster_list[high_cluster_index]["NDB_No"]
         else:
-            return Df_cluster_list[mid_cluster_index]["NDB_No"]
+            if (len(Df_cluster_list[mid_cluster_index]) <=3):
+                return Df_cluster_list[low_cluster_index]["NDB_No"]
+            else:
+                return Df_cluster_list[mid_cluster_index]["NDB_No"]
+            
     else:
         return Df_cluster_list[low_cluster_index]["NDB_No"]
 
@@ -174,16 +181,31 @@ def hillClimbing(nutrients, displaylist, target, items_in_basket):
            
             Score_total = calcScore(target, sum_C)
             currentScore = sum(Score_total)
+            print("Basket before drop")
+            print(basket)
             if ((currentScore > minScore) and (len(basket.index) > NoBasketEnteries)):
+                print(basket)
+
+                if((len(basket.index) > NoBasketEnteries)):
+                    #drop the top #no_to_drop entries which are having large errors. This will retain the basket size to NoBasketEnteries
+                    no_to_drop = len(basket.index) - NoBasketEnteries
+                    top_list = sorted(range(len(score_list_sum)), key=lambda i: score_list_sum[i])[-no_to_drop:]
+                    basket.drop(index=top_list, inplace=True)
+                    basket.reset_index(inplace = True, drop=True)
+                    basket_NDB.drop(index=top_list, inplace=True)
+                    basket_NDB.reset_index(inplace = True, drop=True)
+                else:
             
-                maxpos = score_list_sum.index(max(score_list_sum)) 
-                basket.drop(index=maxpos, inplace=True)
-                basket.reset_index(inplace = True, drop=True)
-                basket_NDB.drop(index=maxpos, inplace=True)
-                basket_NDB.reset_index(inplace = True, drop=True)
-                
+                    maxpos = score_list_sum.index(max(score_list_sum)) 
+                    basket.drop(index=maxpos, inplace=True)
+                    basket.reset_index(inplace = True, drop=True)
+                    basket_NDB.drop(index=maxpos, inplace=True)
+                    basket_NDB.reset_index(inplace = True, drop=True)
+              
             elif (currentScore <= minScore):
                 continue
+            print("Basket after drop")
+            print(basket)
         else:
             print(f"Minimum score : {minScore}")
             print(basket_NDB)            
