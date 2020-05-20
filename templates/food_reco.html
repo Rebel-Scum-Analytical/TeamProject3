@@ -1,9 +1,8 @@
 {% extends "layout.html" %} {% block pagetitle %}Nutrometer{% endblock %} {% block bodycontent %}
 <style>
-    table.data {
-    margin-left:auto; 
-    margin-right:auto;
-  }
+table{
+    width:100%;
+ }
 </style>
 <section class="hero-section set-bg" data-setbg="./static/images/food.jpg">
     <div class="container">
@@ -13,21 +12,18 @@
                     <div class="section-title">
                         <h4>Food Recommendation for you</h4>
 
-                        
-                            
-
                             {% if tables %}
 
-                            {% for table in tables %}
-                                {{titles[loop.index]}}
-                                {{ table|safe }}
-                            {% endfor %}
-
+                                {% for table in tables %}
+                                    
+                                    {{ table|safe }}
+                                {% endfor %}
                             
                             {% else %}
                             <table class="table table-dark" id="diary-table"></table>
                             <tbody>
                                 <tr>
+                                    <th scope="row">Congratulations! Your food intake is in right direction!</th>
                                     <th scope="row">You do not have any food recommendation</th>
                                 </tr>
                             </tbody>

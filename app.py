@@ -97,7 +97,7 @@ app.config["SQLALCHEMY_DATABASE_URI"] = (
 # databse setup for SQLAlchemy
 db = SQLAlchemy(app)
 
-app.config["SQLALCHEMY_ECHO"] = True
+# app.config["SQLALCHEMY_ECHO"] = True
 
 # Create classes for the database tables and map the column names to all the database tables
 
@@ -1066,10 +1066,25 @@ def analysis():
         )
     if request.method == "POST":
 
-        basket_NDB = hillClimbing(deficient_nutrients,displaylist, target_nutrients_corrected, 5)
-        print(basket_NDB)
+        if(len(deficient_nutrients)):
+
+            basket_NDB = hillClimbing(deficient_nutrients,displaylist, target_nutrients_corrected, 5)
+            print(basket_NDB)
+            lastelement = len(basket_NDB.index)
+            basket_NDB.index = pd.RangeIndex(start=1,stop=(lastelement+1), step=1)
+
+            basket_NDB = basket_NDB.drop(['NDB_No'], axis=1)
+            basket_NDB = basket_NDB.rename(columns={'Shrt_Desc': 'Food'})
+            basket_NDB_Transpose = basket_NDB.T
+            basket_NDB_Transpose = basket_NDB_Transpose.add_prefix('Entry_')
+            tables=[basket_NDB_Transpose.to_html(classes='table table-dark', table_id ='diary-table', justify='center')]
+            titles=basket_NDB_Transpose.columns.values
+        else:
+            tables = None
+            titles = None
+               
     
-        return render_template("food_reco.html", tables=[basket_NDB.to_html(classes='table table-dark', table_id ='diary-table')], titles=basket_NDB.columns.values)
+        return render_template("food_reco.html", tables=tables)
 
             
 
