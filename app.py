@@ -1089,7 +1089,7 @@ def analysis():
 
             new_job = q.enqueue(hillClimbing,input_to_function)
             output = get_status(new_job)
-            data_to_display = pd.DataFrame({"Message" : "Processing the and fetching the recommended food"})
+            data_to_display = pd.DataFrame(columns=["Message"],data=[ "Processing the and fetching the recommended food"])
             tables = data_to_display.to_html(classes='table table-dark', table_id ='diary-table', justify='center')
             
 
