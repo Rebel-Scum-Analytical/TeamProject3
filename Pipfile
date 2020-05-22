@@ -18,6 +18,8 @@ gunicorn = "*"
 simplejson = "*"
 plotly = "*"
 scikit-learn = "*"
+rq = "*"
+worker = "*"
 
 [requires]
 python_version = "3.7"

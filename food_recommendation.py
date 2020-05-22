@@ -81,9 +81,13 @@ def calcScore(target, nutsSum):
 
 
 
-def hillClimbing(nutrients, displaylist, target, items_in_basket):
- 
-    nutrients = nutrients
+# def hillClimbing(nutrients, displaylist, target, items_in_basket):
+def hillClimbing(inputs_to_function):
+
+    nutrients = inputs_to_function["first"]
+    displaylist = inputs_to_function["second"]
+    target = inputs_to_function["third"]
+    items_in_basket = inputs_to_function["fourth"]
   
     basket = pd.DataFrame()
     basket_NDB  = pd.DataFrame()

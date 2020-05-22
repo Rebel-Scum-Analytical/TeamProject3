@@ -61,6 +61,8 @@ from sklearn.preprocessing import StandardScaler
 from food_recommendation import (
 hillClimbing,
 )
+from rq import Queue
+from worker import conn
 
 
 #################################################
@@ -68,7 +70,7 @@ hillClimbing,
 #################################################
 
 app = Flask(__name__)
-
+q = Queue(connection=conn)
 # Set the secret key value
 app.secret_key = "1a2b3c4d5e"
 
@@ -78,7 +80,7 @@ app.secret_key = "1a2b3c4d5e"
 HOSTNAME = "127.0.0.1"
 PORT = 3306
 USERNAME = "root"
-PASSWORD = "password"
+PASSWORD = "uv9y9g5t"
 DIALECT = "mysql"
 DRIVER = "pymysql"
 DATABASE = "usda"
@@ -197,6 +199,8 @@ class Nutrition(db.Model):
         return "<Nutrition %r>" % (self.name)
 
 
+
+
 # Initialize the data base and create tables
 @app.before_first_request
 def setup():
@@ -229,7 +233,7 @@ df["Total_fat/cal"] = df["Lipid_Total"]/ df["Energy"]
 df["Cholestrol/cal"] = df["Cholestrol"]/ df["Energy"]
 df["Sugar/cal"] = df["Sugar_Total"]/ df["Energy"]
 df["Calcium/cal"] = df["Calcium"]/ df["Energy"]    
-df_percalorie = df[["NDB_No", "Shrt_Desc", "Carbohydrate", "Protein", "Lipid_Total", "Fiber", "Sugar_Total", "Energy", "Protein/cal", "Carbohydrtes/cal", "Sodium/cal", "Sodium", 
+df_percalorie = df[["NDB_No", "Shrt_Desc", "Carbohydrate", "Protein", "Lipid_Total", "Fiber", "Sugar_Total", "Protein/cal", "Carbohydrtes/cal", "Sodium/cal", "Sodium", 
 "Total_fat/cal", "Cholestrol", "Sugar/cal", "Calcium/cal", "Calcium"]]
 print("dataFrame per calorie value is: ")
 print(df_percalorie.head())
@@ -668,6 +672,15 @@ def food_tracker():
 
     return render_template("food_history.html", top100_entries=top100_entries)
 
+# Heroku background task status
+def get_status(job):
+    status = {
+        'id': job.id,
+        'result': job.result,
+        'status': 'failed' if job.is_failed else 'pending' if job.result == None else 'completed'
+    }
+    status.update(job.meta)
+    return status
 
 # @app.route("/intake")
 # def intake():
@@ -1067,18 +1080,28 @@ def analysis():
     if request.method == "POST":
 
         if(len(deficient_nutrients)):
+            input_to_function = {"first":deficient_nutrients,
+            "second":displaylist,
+            "third":target_nutrients_corrected,
+            "fourth":5
 
-            basket_NDB = hillClimbing(deficient_nutrients,displaylist, target_nutrients_corrected, 5)
-            print(basket_NDB)
-            lastelement = len(basket_NDB.index)
-            basket_NDB.index = pd.RangeIndex(start=1,stop=(lastelement+1), step=1)
+            }
 
-            basket_NDB = basket_NDB.drop(['NDB_No'], axis=1)
-            basket_NDB = basket_NDB.rename(columns={'Shrt_Desc': 'Food'})
-            basket_NDB_Transpose = basket_NDB.T
-            basket_NDB_Transpose = basket_NDB_Transpose.add_prefix('Entry_')
-            tables=[basket_NDB_Transpose.to_html(classes='table table-dark', table_id ='diary-table', justify='center')]
-            titles=basket_NDB_Transpose.columns.values
+            new_job = q.enqueue(hillClimbing,input_to_function)
+            output = get_status(new_job)
+            return jsonify(output)
+
+            # basket_NDB = hillClimbing(deficient_nutrients,displaylist, target_nutrients_corrected, 5)
+            # print(basket_NDB)
+            # lastelement = len(basket_NDB.index)
+            # basket_NDB.index = pd.RangeIndex(start=1,stop=(lastelement+1), step=1)
+
+            # basket_NDB = basket_NDB.drop(['NDB_No'], axis=1)
+            # basket_NDB = basket_NDB.rename(columns={'Shrt_Desc': 'Food'})
+            # basket_NDB_Transpose = basket_NDB.T
+            # basket_NDB_Transpose = basket_NDB_Transpose.add_prefix('Entry_')
+            # tables=[basket_NDB_Transpose.to_html(classes='table table-dark', table_id ='diary-table', justify='center')]
+            # titles=basket_NDB_Transpose.columns.values
         else:
             tables = None
             titles = None
