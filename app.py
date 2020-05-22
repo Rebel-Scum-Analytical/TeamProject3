@@ -1114,6 +1114,27 @@ def analysis():
 
     return render_template("Daily_vizualization.html")
 
+@app.route("/background_task", methods=["POST"])
+def background_task():
+
+    if request.method == "POST":
+        if(len(deficient_nutrients)):
+                input_to_function = {"first":deficient_nutrients,
+                "second":displaylist,
+                "third":target_nutrients_corrected,
+                "fourth":5
+
+                }
+
+                job = q.enqueue(hillClimbing,input_to_function)
+                output = get_status(job)
+
+        else:
+
+                output = None
+    return render_template("food_reco.html", output=jsonify(output))
+
+
 
 
 # Function to check if the user is logged in and maintain the infomration in session variable.
