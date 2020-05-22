@@ -1132,7 +1132,7 @@ def background_task():
         else:
 
                 output = None
-    return render_template("food_reco.html", output=jsonify(output))
+    return render_template("food_reco.html", output=output.id)
 
 
 
