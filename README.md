@@ -1,5 +1,6 @@
 ![alt text](/static/images/Nutrometer.png)
 # TeamProject2
+
 **Nutrometer** is a WebApp health tool designed for managing your daily nutrition intake. As an important healthy dining program, you’ll use Nutrometer to record your meals, search nutrients of a certain type of food, and analyze nutritional contents against the USDA recommendations.
 
 
@@ -16,19 +17,32 @@ As soon as you successfully finish registering as a new user, you are able to lo
 
 
 **Dashboard**
+
 This key component includes three important functions: “Today’s Statistics”, “Quick Add”, and “Last 5 Entries”. 
 •	“Today’s Statistics”: it provides a brief data on your nutrients intake and remaining.
 •	“Quick Add”: it is the convenient window to take your meal records. It provides different menus for your inputs and makes the work easy.
 •	“Last 5 Entries”: it shows the latest five meal data for reference.
 It also provides navigable access to “Analysis”, “Nutrition Lookup”, and “Food History”.
 
+
 ![alt text](/static/images/dashboard.png)
 
+**Quick Add**
 
-**Nutrients Analysis and Visualization**
-“Nutrients Analysis” provides a centralized, interactive means of monitoring, measuring, and analyzing user’s nutrition insights from relevant datasets.
+This part provides "Advanced Search".
 
-![alt text](/static/images/filter.png)
+![alt text](/static/images/advancedsearchlink.png)
+
+The function's applied Machine Learning to help user find food items by closest food name match.
+
+![alt text](/static/images/advancedsearchwindow.png)
+
+
+
+**Analysis**
+“Nutrients Analysis” provides a centralized, interactive means of monitoring, measuring, and analyzing user’s nutrition insights for any customized time period.
+
+![alt text](/static/images/newfilterdateset.png)
 
 It offers users a comprehensive overview of their nutrients intake and health goals. These are measured through Key Performance Indicators (KFI).
 
@@ -40,11 +54,27 @@ This important function analyzes and displays day wise visualization of the nutr
 ![alt text](/static/images/percentage.png)
 
 
+Another important function is "Food Recommendation".
+![alt text](/static/images/nutritionrecommendationbutton.png)
+
+This function's applied Machine Learning (HillClimbing Algorithm). It provides user's nutrients consumption information. Based on deficient nutrients, it tells the deficient nutrients and the amounts whichs less than 30% of the recommendation. Furthermore, it recommends user relevant food.
+
+![alt text](/static/images/NutrientsRecommendTable.png)
+
+
+
 **Nutrition Lookup**
 Nutrition Lookup provides nutrition data on 8790 types of food.
-It offers an easy way to look into the food items and its nutrition content. This helps user to lookup the nutrition data of a certain food item before the food consumption and helps user to manage and balance daily nutrition intake.
+It offers an easy way to look into the food items and its nutrition content. 
 
-![alt text](/static/images/lookup.png)
+![alt text](/static/images/newlookup.png)
+
+
+After user enters searching food name text, it displays the closest food items with nutrition information matching the searching requirement.
+
+
+![alt text](/static/images/FoodNutrition.png)
+
 
 
 **Food History**
