@@ -1077,24 +1077,21 @@ def analysis():
             "Daily_vizualization.html", plot_ids=plot_ids, graphJSON=graphJSON, date=desired_date ,  enddate=end_date
 
         )
-        if request.method == "POST":
-            if(len(deficient_nutrients)):
-                input_to_function = {"first":deficient_nutrients,
-                "second":displaylist,
-                "third":target_nutrients_corrected,
-                "fourth":5
-                }
-                job = q.enqueue(hillClimbing,input_to_function)
-                data_to_display = pd.DataFrame(columns=["Message"],data=[ "Please wait while the recommendation is processed"])                
-                tables = [data_to_display.to_html(classes='table table-dark', table_id ='diary-table', justify='center')]
-            else:
-                tables = None
+    if request.method == "POST":
+        if(len(deficient_nutrients)):
+            input_to_function = {"first":deficient_nutrients,
+            "second":displaylist,
+            "third":target_nutrients_corrected,
+            "fourth":5
+            }
+            job = q.enqueue(hillClimbing,input_to_function)
+            data_to_display = pd.DataFrame(columns=["Message"],data=[ "Please wait while the recommendation is processed"])                
+            tables = [data_to_display.to_html(classes='table table-dark', table_id ='diary-table', justify='center')]
+        else:
+            tables = None
         return render_template("food_reco.html", tables=tables)
     
     return render_template("Daily_vizualization.html")
-
-
-
 
 # Function to check if the user is logged in and maintain the infomration in session variable.
 # This is used in multiple routes.
