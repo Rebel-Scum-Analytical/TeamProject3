@@ -1077,20 +1077,7 @@ def analysis():
             "Daily_vizualization.html", plot_ids=plot_ids, graphJSON=graphJSON, date=desired_date ,  enddate=end_date
 
         )
-        if request.method == "POST":
-            if(len(deficient_nutrients)):
-                input_to_function = {"first":deficient_nutrients,
-                "second":displaylist,
-                "third":target_nutrients_corrected,
-                "fourth":5
-                }
-                job = q.enqueue(hillClimbing,input_to_function)
-                data_to_display = pd.DataFrame(columns=["Message"],data=[ "Please wait while the data is retrieved"])
-                data_to_display.drop(data_to_display.index)
-                tables = [data_to_display.to_html(classes='table table-dark', table_id ='diary-table', justify='center')]
-            else:
-                tables = None
-        return render_template("food_reco.html", tables=tables)
+        
     
     return render_template("Daily_vizualization.html")
 
@@ -1255,6 +1242,32 @@ def advanced_search():
     searchResult = advanced_search_func(term)
     return json.dumps(searchResult.values.tolist(), cls=DecimalEncoder)
     #return(json.dumps(str(searchResult.values.tolist())))
+
+######################################################################################################
+# Route #12(/Background_task)
+# This route is to start the background task for Food recommendation based on the nutrition
+######################################################################################################
+
+@app.route("/background_task", methods=["GET"])
+def background_task():
+    if request.method == "POST":
+            if(len(deficient_nutrients)):
+                input_to_function = {"first":deficient_nutrients,
+                "second":displaylist,
+                "third":target_nutrients_corrected,
+                "fourth":5
+                }
+                job = q.enqueue(hillClimbing,input_to_function)
+                data_to_display = pd.DataFrame(columns=["Message"],data=[ "Please wait while the recommendation is processed"])                
+                tables = [data_to_display.to_html(classes='table table-dark', table_id ='diary-table', justify='center')]
+            else:
+                tables = None
+        return render_template("food_reco.html", tables=tables)
+
+
+
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)
