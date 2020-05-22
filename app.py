@@ -1285,7 +1285,7 @@ def background_task():
         job = q.enqueue(hillClimbing,input_to_function)
         output = get_status(job)
         print(output["result"])
-        return jsonify({}), 202, {'Location': url_for('app.job_status', job_id=output.id)}
+        return jsonify({}), 202, {'Location': url_for('app.job_status', job_id=job.get_id())}
         # return jsonify(output)
         # data_to_display = pd.DataFrame(columns=["Message"],data=[ "Please wait while the recommendation is processed"])                
         # tables = [data_to_display.to_html(classes='table table-dark', table_id ='diary-table', justify='center')]
