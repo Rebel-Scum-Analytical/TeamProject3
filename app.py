@@ -1085,11 +1085,11 @@ def analysis():
             "fourth":5
             }
             job = q.enqueue(hillClimbing,input_to_function)
-            data_to_display = pd.DataFrame(columns=["Message"],data=[ "Please wait while the recommendation is processed"])                
-            tables = [data_to_display.to_html(classes='table table-dark', table_id ='diary-table', justify='center')]
+            output = get_status(job)
+            return jsonify(output)
         else:
             tables = None
-        return render_template("food_reco.html", tables=tables)
+            return render_template("food_reco.html", tables=tables)
     
     return render_template("Daily_vizualization.html")
 
