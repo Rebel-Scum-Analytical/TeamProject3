@@ -91,6 +91,7 @@
                                         <tbody>
                                             <tr>
                                                 <th>Item Name</th>
+                                                <th>Energy(kCal)</th>
                                                 <th>Carbohydrate (g)</th>
                                                 <th>Protein (g)</th>
                                                 <th>Total Fat (% kcal)</th>
@@ -100,6 +101,7 @@
                                             {% for resultrow in similarResult %}
                                             <tr>
                                                 <td>{{resultrow[1]}}</td>
+                                                <td>{{resultrow[7]|round| int }}</td>
                                                 <td>{{resultrow[2]|round | float}}</td>
                                                 <td>{{resultrow[3]|round | float}}</td>
                                                 <td>{{resultrow[4]|round | float}}</td>

@@ -229,7 +229,7 @@ df["Total_fat/cal"] = df["Lipid_Total"]/ df["Energy"]
 df["Cholestrol/cal"] = df["Cholestrol"]/ df["Energy"]
 df["Sugar/cal"] = df["Sugar_Total"]/ df["Energy"]
 df["Calcium/cal"] = df["Calcium"]/ df["Energy"]    
-df_percalorie = df[["NDB_No", "Shrt_Desc", "Carbohydrate", "Protein", "Lipid_Total", "Fiber", "Sugar_Total", "Protein/cal", "Carbohydrtes/cal", "Sodium/cal", "Sodium", 
+df_percalorie = df[["NDB_No", "Shrt_Desc", "Carbohydrate", "Protein", "Lipid_Total", "Fiber", "Sugar_Total", "Energy", "Protein/cal", "Carbohydrtes/cal", "Sodium/cal", "Sodium", 
 "Total_fat/cal", "Cholestrol", "Sugar/cal", "Calcium/cal", "Calcium"]]
 print("dataFrame per calorie value is: ")
 print(df_percalorie.head())
