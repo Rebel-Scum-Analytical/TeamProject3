@@ -1077,62 +1077,22 @@ def analysis():
             "Daily_vizualization.html", plot_ids=plot_ids, graphJSON=graphJSON, date=desired_date ,  enddate=end_date
 
         )
-    if request.method == "POST":
-
-        if(len(deficient_nutrients)):
-            input_to_function = {"first":deficient_nutrients,
-            "second":displaylist,
-            "third":target_nutrients_corrected,
-            "fourth":5
-
-            }
-
-            job = q.enqueue(hillClimbing,input_to_function)
-            output = get_status(job)
-            data_to_display = pd.DataFrame(columns=["Message"],data=[ "Processing the and fetching the recommended food"])
-            tables = [data_to_display.to_html(classes='table table-dark', table_id ='diary-table', justify='center')]
-            
-            
-
-            # basket_NDB = hillClimbing(deficient_nutrients,displaylist, target_nutrients_corrected, 5)
-            # print(basket_NDB)
-            # lastelement = len(basket_NDB.index)
-            # basket_NDB.index = pd.RangeIndex(start=1,stop=(lastelement+1), step=1)
-
-            # basket_NDB = basket_NDB.drop(['NDB_No'], axis=1)
-            # basket_NDB = basket_NDB.rename(columns={'Shrt_Desc': 'Food'})
-            # basket_NDB_Transpose = basket_NDB.T
-            # basket_NDB_Transpose = basket_NDB_Transpose.add_prefix('Entry_')
-            # tables=[basket_NDB_Transpose.to_html(classes='table table-dark', table_id ='diary-table', justify='center')]
-            # titles=basket_NDB_Transpose.columns.values
-        else:
-            tables = None
-            titles = None
-               
-    
-        return render_template("food_reco.html", tables=tables)
-
-    return render_template("Daily_vizualization.html")
-
-@app.route("/background_task", methods=["POST"])
-def background_task():
-
-    if request.method == "POST":
-        if(len(deficient_nutrients)):
+        if request.method == "POST":
+            if(len(deficient_nutrients)):
                 input_to_function = {"first":deficient_nutrients,
                 "second":displaylist,
                 "third":target_nutrients_corrected,
                 "fourth":5
-
                 }
-
                 job = q.enqueue(hillClimbing,input_to_function)
-                output = get_status(job)
-
-        else:
-
-                output = None
-    return render_template("food_reco.html", output=output.id)
+                data_to_display = pd.DataFrame(columns=["Message"],data=[ "Please wait while the data is retrieved"])
+                data_to_display.drop(data_to_display.index)
+                tables = [data_to_display.to_html(classes='table table-dark', table_id ='diary-table', justify='center')]
+            else:
+                tables = None
+        return render_template("food_reco.html", tables=tables)
+    
+    return render_template("Daily_vizualization.html")
 
 
 
