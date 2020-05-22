@@ -27,8 +27,8 @@
                                 <tr>
                                     <th scope="row">{{loop.index}}</th>
                                     <td>{{ query_val.meal_date }}</td>
-                                    <td>{{ query_val.type }}</td>
-                                    <td>{{ query_val.meal_desc }}</td>
+                                    <td>{{ query_val.type |title }}</td>
+                                    <td>{{ query_val.meal_desc |title }}</td>
                                     <td>{{ query_val.amount }}</td>
                                 </tr>
                                 {% endfor %}
