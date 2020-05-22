@@ -6,7 +6,7 @@ from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 
 global df_for_cluster 
-df_for_cluster = pd.read_csv("nutrition_prediction.csv")
+df_for_cluster = pd.read_csv("db/nutrition_prediction.csv")
 
 indices = [i for i in df_for_cluster.index if (i >= df_for_cluster.index[df_for_cluster["NDB_No"] == 18369].values[0]) and ( i <= df_for_cluster.index[df_for_cluster["NDB_No"] == 18375].values[0])]
 df_for_cluster = df_for_cluster.drop(indices, axis=0)
@@ -189,7 +189,9 @@ def hillClimbing(nutrients, displaylist, target, items_in_basket):
                 if((len(basket.index) > NoBasketEnteries)):
                     #drop the top #no_to_drop entries which are having large errors. This will retain the basket size to NoBasketEnteries
                     no_to_drop = len(basket.index) - NoBasketEnteries
+                    print(f"No.to drop : {no_to_drop}")
                     top_list = sorted(range(len(score_list_sum)), key=lambda i: score_list_sum[i])[-no_to_drop:]
+                    print(top_list)
                     basket.drop(index=top_list, inplace=True)
                     basket.reset_index(inplace = True, drop=True)
                     basket_NDB.drop(index=top_list, inplace=True)
