@@ -1077,19 +1077,20 @@ def analysis():
             "Daily_vizualization.html", plot_ids=plot_ids, graphJSON=graphJSON, date=desired_date ,  enddate=end_date
 
         )
-    if request.method == "POST":
-        if(len(deficient_nutrients)):
-            input_to_function = {"first":deficient_nutrients,
-            "second":displaylist,
-            "third":target_nutrients_corrected,
-            "fourth":5
-            }
-            job = q.enqueue(hillClimbing,input_to_function)
-            output = get_status(job)
-            return jsonify(output)
-        else:
-            tables = None
-            return render_template("food_reco.html", tables=tables)
+    # if request.method == "POST":
+    #     if(len(deficient_nutrients)):
+    #         input_to_function = {"first":deficient_nutrients,
+    #         "second":displaylist,
+    #         "third":target_nutrients_corrected,
+    #         "fourth":5
+    #         }
+    #         job = q.enqueue(hillClimbing,input_to_function)
+    #         output = get_status(job)
+    #         print(output["result"])
+    #         return jsonify(output)
+    #     else:
+    #         tables = None
+    #         return render_template("food_reco.html", tables=tables)
     
     return render_template("Daily_vizualization.html")
 
@@ -1248,25 +1249,50 @@ def advanced_search():
     #return(json.dumps(str(searchResult.values.tolist())))
 
 ######################################################################################################
-# Route #12(/Background_task)
+# Route #12(/job_status)
 # This route is to start the background task for Food recommendation based on the nutrition
 ######################################################################################################
 
-# @app.route("/background_task", methods=["POST"])
-# def background_task():
-#     if request.method == "POST":
-#         if(len(deficient_nutrients)):
-#             input_to_function = {"first":deficient_nutrients,
-#             "second":displaylist,
-#             "third":target_nutrients_corrected,
-#             "fourth":5
-#             }
-#             job = q.enqueue(hillClimbing,input_to_function)
-#             data_to_display = pd.DataFrame(columns=["Message"],data=[ "Please wait while the recommendation is processed"])                
-#             tables = [data_to_display.to_html(classes='table table-dark', table_id ='diary-table', justify='center')]
-#         else:
-#             tables = None
-#         return render_template("food_reco.html", tables=tables)
+@app.route("/job_status/<job_id>")
+def job_status(job_id):
+    q = Queue()
+    job = q.fetch_job(job_id)
+    if job is None:
+        response = {'status': 'unknown'}
+    else:
+        response = {
+            'status': job.get_status(),
+            'result': job.result,
+        }
+        if job.is_failed:
+            response['message'] = job.exc_info.strip().split('\n')[-1]
+    return jsonify(response)
+
+######################################################################################################
+# Route #12(/Background_process)
+# This route is to start the background task for Food recommendation based on the nutrition
+######################################################################################################
+
+@app.route("/background_process")
+def background_task():
+    
+    if(len(deficient_nutrients)):
+        input_to_function = {"first":deficient_nutrients,
+        "second":displaylist,
+        "third":target_nutrients_corrected,
+        "fourth":5
+        }
+        job = q.enqueue(hillClimbing,input_to_function)
+        output = get_status(job)
+        print(output["result"])
+        return jsonify({}), 202, {'Location': url_for('app.job_status', job_id=output.id)
+        # return jsonify(output)
+        # data_to_display = pd.DataFrame(columns=["Message"],data=[ "Please wait while the recommendation is processed"])                
+        # tables = [data_to_display.to_html(classes='table table-dark', table_id ='diary-table', justify='center')]
+    
+    
+
+
 
 
 

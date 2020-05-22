@@ -90,6 +90,48 @@
 
   </script>
 
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script type=text/javascript>
+      $(function() {
+        $('#submit').bind('click', function() {
+          $.getJSON('/background_process',  function(data, status, request) {
+            var status_url = request.getResponseHeader('Location');
+                check_job_status(status_url);
+              
+            
+          });
+          return false;
+        });
+      });
+      function check_job_status(status_url) {
+        $.getJSON(status_url, function(data) {
+        console.log(data);
+    switch (data.status) {
+      case "unknown":
+          flash_alert("Unknown job id", "danger");
+          $("#submit").removeAttr("disabled");
+          break;
+      case "finished":
+          flash_alert(data.result, "success");
+          $("#submit").removeAttr("disabled");
+          break;
+      case "failed":
+          flash_alert("Job failed: " + data.message, "danger");
+          $("#submit").removeAttr("disabled");
+          break;
+      default:
+        // queued/started/deferred
+        setTimeout(function() {
+          check_job_status(status_url);
+        }, 500);
+    }
+  });
+}
+
+
+
+  </script>
+
 <script src="/static/js/date1.js"></script>
 
   {% endblock %}
