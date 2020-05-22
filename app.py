@@ -1248,7 +1248,7 @@ def advanced_search():
 # This route is to start the background task for Food recommendation based on the nutrition
 ######################################################################################################
 
-@app.route("/background_task", methods=["GET"])
+@app.route("/background_task", methods=["POST"])
 def background_task():
     if request.method == "POST":
             if(len(deficient_nutrients)):
