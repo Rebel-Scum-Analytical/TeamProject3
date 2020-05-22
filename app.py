@@ -1087,10 +1087,11 @@ def analysis():
 
             }
 
-            new_job = q.enqueue(hillClimbing,input_to_function)
-            output = get_status(new_job)
+            job = q.enqueue(hillClimbing,input_to_function)
+            output = get_status(job)
             data_to_display = pd.DataFrame(columns=["Message"],data=[ "Processing the and fetching the recommended food"])
             tables = [data_to_display.to_html(classes='table table-dark', table_id ='diary-table', justify='center')]
+            return jsonify({}), 202, {'Location': url_for('app.job_status', job_id=job.get_id())}
             
 
             # basket_NDB = hillClimbing(deficient_nutrients,displaylist, target_nutrients_corrected, 5)
@@ -1116,6 +1117,20 @@ def analysis():
 
     return render_template("Daily_vizualization.html")
 
+@bp.route('/status/<job_id>')
+def job_status(job_id):
+    q = Queue()
+    job = q.fetch_job(job_id)
+    if job is None:
+        response = {'status': 'unknown'}
+    else:
+        response = {
+            'status': job.get_status(),
+            'result': job.result,
+        }
+        if job.is_failed:
+            response['message'] = job.exc_info.strip().split('\n')[-1]
+    return jsonify(response)
 
 # Function to check if the user is logged in and maintain the infomration in session variable.
 # This is used in multiple routes.
