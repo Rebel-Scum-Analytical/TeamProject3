@@ -45,6 +45,7 @@
                 </div>
             </aside>
         </div>
+
         <div class="container">
             <div class="row">
                 <div class="col">
@@ -92,17 +93,19 @@
 
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
   <script type=text/javascript>
-      $(function() {
-        $('#submit').bind('click', function() {
-          $.getJSON('/background_process',  function(data, status, request) {
-            var status_url = request.getResponseHeader('Location');
-                check_job_status(status_url);
+  var tables;
+      // $(function() {
+      //   $('#submit').bind('click', function() {
+      //     $.getJSON('/background_process',  function(data, status, request) {
+      //       var status_url = request.getResponseHeader('Location');
+      //       console.log(status_url)
+      //           check_job_status(status_url);
               
             
-          });
-          return false;
-        });
-      });
+      //     });
+      //     return false;
+      //   });
+      // });
       function check_job_status(status_url) {
         $.getJSON(status_url, function(data) {
         console.log(data);
@@ -112,7 +115,10 @@
           $("#submit").removeAttr("disabled");
           break;
       case "finished":
-          flash_alert(data.result, "success");
+        console.log(data.result)
+        $('#divResults').append(data.result)
+          
+          // flash_alert(data.result, "success");
           $("#submit").removeAttr("disabled");
           break;
       case "failed":

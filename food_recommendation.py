@@ -106,7 +106,7 @@ def hillClimbing(inputs_to_function):
         # to track number of iterations of external while loop
         iteration += 1
         print(f"Iteration : {iteration}")
-        if(iteration == 10):
+        if(iteration == 3):
             print(f"Minimum score : {minScore}")
             print(basket_NDB)     
             break
