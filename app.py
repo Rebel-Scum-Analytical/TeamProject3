@@ -61,8 +61,20 @@ from sklearn.preprocessing import StandardScaler
 from food_recommendation import (
 hillClimbing,
 )
+import redis
 from rq import Queue
 from worker import conn
+from rq.job import Job
+
+# redis_conn = redis.Redis(
+#     host=os.getenv("REDIS_HOST", "127.0.0.1"),
+#     port=os.getenv("REDIS_PORT", "6379"), 
+#     password=os.getenv("REDIS_PASSWORD", ""),   
+# )
+
+# redis_queue = Queue(connection=redis_conn)
+
+redis_queue = Queue(connection=conn)
 
 
 #################################################
@@ -70,7 +82,7 @@ from worker import conn
 #################################################
 
 app = Flask(__name__)
-q = Queue(connection=conn)
+
 # Set the secret key value
 app.secret_key = "1a2b3c4d5e"
 
@@ -91,6 +103,11 @@ db_connection_string = (
 )
 
 # Database Setup for HEROKU
+
+# db_cloud_string = os.getenv("JAWSDB_URL")
+
+# app.config["SQLALCHEMY_DATABASE_URI"] = (
+#     db_cloud_string )
 
 app.config["SQLALCHEMY_DATABASE_URI"] = (
     os.environ.get("JAWSDB_URL", "") or db_connection_string
@@ -611,22 +628,6 @@ def dashboard():
             float(daily_stats.water),
             float(daily_stats.fiber),
         ]
-    #      cmd = session_db.query(func.round(func.sum(Nutrition.Energy),0).label('cal'),\
-    #                                 func.round(func.sum(Nutrition.Carbohydrate),2).label('carbs'),\
-    #                                 func.round(func.sum(Nutrition.Lipid_Total),0).label('fats'),\
-    #                                 func.round(func.sum(Nutrition.Sodium), 2).label('sodium'),\
-    #                                 func.round(func.sum(Nutrition.Sugar_Total),2).label('sugar'),\
-    #                                 func.round(func.sum(Nutrition.Fiber),2).label('fiber'),\
-    #                                 func.count().label('cnt')).\
-    #                                 filter(Meal_record.username == session['username']).\
-    #                                 filter(Meal_record.meal_item_code == Nutrition.NDB_No).\
-    #                                 filter(Meal_record.meal_date == dt.date.today())
-    #     daily_stats = cmd.first()
-
-    #     results = [0,0,0,0,0,0]
-
-    #     if(daily_stats.cnt!=0):
-    #         results = [daily_stats.cal, daily_stats.carbs, daily_stats.fats, daily_stats.sodium, daily_stats.sugar, daily_stats.fiber]
 
     print("daily stats are: ", daily_stats)
     print("daily stats cnt: ", daily_stats.cnt)
@@ -1077,20 +1078,22 @@ def analysis():
             "Daily_vizualization.html", plot_ids=plot_ids, graphJSON=graphJSON, date=desired_date ,  enddate=end_date
 
         )
-    # if request.method == "POST":
-    #     if(len(deficient_nutrients)):
-    #         input_to_function = {"first":deficient_nutrients,
-    #         "second":displaylist,
-    #         "third":target_nutrients_corrected,
-    #         "fourth":5
-    #         }
-    #         job = q.enqueue(hillClimbing,input_to_function)
-    #         output = get_status(job)
-    #         print(output["result"])
-    #         return jsonify(output)
-    #     else:
-    #         tables = None
-    #         return render_template("food_reco.html", tables=tables)
+    if request.method == "POST":
+        if(len(deficient_nutrients)):
+            input_to_function = {"first":deficient_nutrients,
+            "second":displaylist,
+            "third":target_nutrients_corrected,
+            "fourth":5
+            }
+            job = redis_queue.enqueue(hillClimbing,input_to_function, job_timeout=600)
+            tables = None
+            job_id=job.get_id()
+            data={'Location': url_for('job_status', job_id=job.get_id())}
+            print(json.dumps(job_id))
+            return render_template("food_reco.html", tables=tables, job_id=json.dumps(job_id))
+        else:
+            tables = None
+            return render_template("food_reco.html", tables=tables, job_id=None)
     
     return render_template("Daily_vizualization.html")
 
@@ -1255,8 +1258,8 @@ def advanced_search():
 
 @app.route("/job_status/<job_id>")
 def job_status(job_id):
-    q = Queue()
-    job = q.fetch_job(job_id)
+    
+    job = Job.fetch(job_id, connection=conn)
     if job is None:
         response = {'status': 'unknown'}
     else:
@@ -1264,8 +1267,31 @@ def job_status(job_id):
             'status': job.get_status(),
             'result': job.result,
         }
+        print(job.result)
+        print(job.get_status())
         if job.is_failed:
             response['message'] = job.exc_info.strip().split('\n')[-1]
+        if job.get_status() == "finished":
+            print("I am inside finished")
+            basket_NDB = job.result
+            lastelement = len(basket_NDB.index)
+            basket_NDB.index = pd.RangeIndex(start=1,stop=(lastelement+1), step=1)
+
+            basket_NDB = basket_NDB.drop(['NDB_No'], axis=1)
+            basket_NDB = basket_NDB.rename(columns={'Shrt_Desc': 'Food'})
+            basket_NDB_Transpose = basket_NDB.T
+            basket_NDB_Transpose = basket_NDB_Transpose.add_prefix('Entry_')
+            # jsonfiles = json.dumps(basket_NDB_Transpose.values.tolist(), cls=DecimalEncoder)
+
+            tables=[basket_NDB_Transpose.to_html(classes='table table-dark', table_id ='diary-table', justify='center')]
+            # titles=basket_NDB_Transpose.columns.values
+            # return render_template("food_reco.html", tables=tables)
+            response = {
+            'status': job.get_status(),
+            'result': tables,
+            }
+
+
     return jsonify(response)
 
 ######################################################################################################
@@ -1274,20 +1300,25 @@ def job_status(job_id):
 ######################################################################################################
 
 @app.route("/background_process")
-def background_task():
+def background_process():
+
     
+    print(f"Decificent Nutrients : {deficient_nutrients}")
+
     if(len(deficient_nutrients)):
         input_to_function = {"first":deficient_nutrients,
         "second":displaylist,
         "third":target_nutrients_corrected,
         "fourth":5
         }
-        job = q.enqueue(hillClimbing,input_to_function)
-        output = get_status(job)
-        print(output["result"])
+        job = redis_queue.enqueue(hillClimbing,input_to_function, job_timeout=600)
+        print(f" Job ID : {job.id}")
+
         return jsonify({}), 202, {'Location': url_for('job_status', job_id=job.get_id())}
+        # return jsonify({"job_id": job.id})
     else:
         return jsonify({}), 202, {'Location': url_for('job_status', job_id=null)}
+            # return jsonify({"job_id": null})
         # return jsonify(output)
         # data_to_display = pd.DataFrame(columns=["Message"],data=[ "Please wait while the recommendation is processed"])                
         # tables = [data_to_display.to_html(classes='table table-dark', table_id ='diary-table', justify='center')]

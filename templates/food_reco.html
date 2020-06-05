@@ -12,12 +12,13 @@ table{
                     <div class="section-title">
                         <h4>Food Recommendation for you</h4>
 
-                            {% if tables %}
 
-                                {% for table in tables %}
-                                    
-                                    {{ table|safe }}
-                                {% endfor %}
+                            {% if job_id %}
+                            <div id = "divResults" >
+          
+ 
+                            </div>
+                                
                             
                             {% else %}
                             <table class="table table-dark" id="diary-table"></table>
@@ -37,36 +38,52 @@ table{
         </div>
     </div>
 </section>
-<script type="text/javascript">
-var output = {{output | safe}}
-var table = 
+<!-- <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script> -->
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.5.0/d3.min.js"></script>
+  <script type=text/javascript>
 
-console.log(output.id)
+      var jobId = {{job_id | safe}}
+      console.log(jobId);
+      (function(jobId) {
+         
+        var status_url = `/job_status/${jobId}`
+        console.log(status_url)
+        check_job_status(status_url);
+        
+      })(jobId);
+      function check_job_status(status_url) {
+        $.getJSON(status_url, function(data) {
+        console.log(data);
+    switch (data.status) {
+      case "unknown":
+          flash_alert("Unknown job id", "danger");
+          $("#submit").removeAttr("disabled");
+          break;
+      case "finished":
+        console.log(data.result)
+        $('#divResults').append(data.result)
+          
+          // flash_alert(data.result, "success");
+          $("#submit").removeAttr("disabled");
+          break;
+      case "failed":
+          flash_alert("Job failed: " + data.message, "danger");
+          $("#submit").removeAttr("disabled");
+          break;
+      default:
+        // queued/started/deferred
+        setTimeout(function() {
+          check_job_status(status_url);
+        }, 3000);
+    }
+  });
+}
 
-// function check_job_status(status_url) {
-//   $.getJSON(status_url, function(data) {
-//     console.log(data);
-//     switch (data.status) {
-//       case "unknown":
-//           flash_alert("Unknown job id", "danger");
-//           $("#submit").removeAttr("disabled");
-//           break;
-//       case "finished":
-//           flash_alert(data.result, "success");
-//           $("#submit").removeAttr("disabled");
-//           break;
-//       case "failed":
-//           flash_alert("Job failed: " + data.message, "danger");
-//           $("#submit").removeAttr("disabled");
-//           break;
-//       default:
-//         // queued/started/deferred
-//         setTimeout(function() {
-//           check_job_status(status_url);
-//         }, 500);
-//     }
-//   });
-// }
 
-</script>
+
+  </script>
+
+
 {% endblock %}
